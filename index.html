@@ -1,4 +1,3 @@
-<!-- START OF FILE admin.html -->
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -301,6 +300,7 @@
                 </div>
             </section>
 
+            <!-- Popup Section Updated -->
             <section id="popup" class="page">
                 <div class="card">
                     <h2>পপ-আপ ম্যানেজমেন্ট</h2>
@@ -320,6 +320,18 @@
                         <label for="popupMessageInput">মেসেজ</label>
                         <textarea id="popupMessageInput" rows="4" placeholder="পপ-আপে কি মেসেজ দেখাবে..."></textarea>
                     </div>
+                    
+                    <!-- New Button Fields -->
+                    <div class="input-group">
+                        <label for="popupButtonTextInput">বাটনের নাম (Button Text)</label>
+                        <input type="text" id="popupButtonTextInput" placeholder="Tap Here">
+                    </div>
+                    <div class="input-group">
+                        <label for="popupButtonLinkInput">বাটনের লিংক (Button Link)</label>
+                        <input type="url" id="popupButtonLinkInput" placeholder="https://example.com">
+                        <small style="color: var(--text-secondary);">লিংক ফাঁকা রাখলে বাটনটি ইউজার প্যানেলে দেখাবে না।</small>
+                    </div>
+                    
                     <div class="input-group">
                         <label for="popupImageUrlInput">ছবির URL</label>
                         <input type="url" id="popupImageUrlInput" placeholder="https://example.com/image.png">
@@ -905,6 +917,11 @@
                 document.getElementById('popupStatusToggle').checked = data.isActive || false;
                 document.getElementById('popupTitleInput').value = data.title || '';
                 document.getElementById('popupMessageInput').value = data.message || '';
+                
+                // Added: Load Button Text and Link
+                document.getElementById('popupButtonTextInput').value = data.buttonText || '';
+                document.getElementById('popupButtonLinkInput').value = data.buttonLink || '';
+                
                 document.getElementById('popupImageUrlInput').value = data.imageUrl || '';
             }
         }
@@ -913,7 +930,12 @@
             const title = document.getElementById('popupTitleInput').value;
             const message = document.getElementById('popupMessageInput').value;
             const imageUrl = document.getElementById('popupImageUrlInput').value;
-            await db.collection('settings').doc('popup').set({ isActive, title, message, imageUrl });
+            
+            // Added: Get Button Text and Link
+            const buttonText = document.getElementById('popupButtonTextInput').value;
+            const buttonLink = document.getElementById('popupButtonLinkInput').value;
+            
+            await db.collection('settings').doc('popup').set({ isActive, title, message, imageUrl, buttonText, buttonLink });
             alert('পপ-আপ সফলভাবে আপডেট হয়েছে!');
         }
         
@@ -1162,21 +1184,6 @@
             try {
                 if (methodId) {
                     await db.collection('paymentMethods').doc(methodId).update(methodData);
-                    alert("পেমেন্ট মেথড সফলভাবে আপডেট হয়েছে!");
-                } else {
-                    await db.collection('paymentMethods').add(methodData);
-                    alert("পেমেন্ট মেথড সফলভাবে যোগ করা হয়েছে!");
-                }
-                paymentMethodModal.style.display = 'none';
-                loadPaymentMethods();
-            } catch (error) {
-                alert("ত্রুটি: " + error.message);
-            }
-        });
-
-    </script>
-</body>
-</html>                await db.collection('paymentMethods').doc(methodId).update(methodData);
                     alert("পেমেন্ট মেথড সফলভাবে আপডেট হয়েছে!");
                 } else {
                     await db.collection('paymentMethods').add(methodData);
