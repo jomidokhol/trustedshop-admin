@@ -112,6 +112,7 @@
         .status-Pending { background-color: var(--warning-color); }
         .status-active, .status-Completed, .status-Approved { background-color: var(--success-color); }
         .status-blocked, .status-Canceled, .status-Rejected { background-color: var(--danger-color); }
+        .status-unavailable { background-color: var(--text-secondary); } /* 'Unavailable' এর জন্য নতুন স্টাইল */
         .action-btn { background: none; border: none; font-size: 18px; cursor: pointer; margin: 0 5px; color: var(--text-secondary); transition: color 0.2s; }
         .action-btn.edit:hover { color: var(--primary-color); }
         .action-btn.delete:hover { color: var(--danger-color); }
@@ -169,15 +170,25 @@
         .category-management-entry {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px; /* Gap কমানো হয়েছে */
             padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             margin-bottom: 15px;
         }
         .category-management-entry input { flex-grow: 1; }
-        .category-management-entry .btn { padding: 8px 16px; font-size: 14px; }
-        #uncategorizedGamesList .game-item { display: flex; align-items: center; margin-bottom: 10px; }
+        .category-management-entry .btn { padding: 8px 12px; font-size: 14px; } /* বাটন ছোট করা হয়েছে */
+        #uncategorizedGamesList .game-item, #gamesInCategoryList .game-item { 
+            display: flex; 
+            align-items: center; 
+            margin-bottom: 10px; 
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #uncategorizedGamesList .game-item:last-child, #gamesInCategoryList .game-item:last-child {
+            border-bottom: none;
+        }
         #uncategorizedGamesList .game-item input { margin-right: 10px; }
 
         @media (min-width: 1024px) {
@@ -453,11 +464,14 @@
                     </div>
                     <div class="input-group"> 
                         <label for="gameStatus">স্ট্যাটাস</label> 
-                        <select id="gameStatus"> <option value="active">Active</option> <option value="inactive">Inactive</option> </select> 
+                        <select id="gameStatus"> 
+                            <option value="active">Active</option> 
+                            <option value="inactive">Inactive</option> 
+                            <option value="unavailable">আন এভেইলেবল</option> <!-- পরিবর্তন ১ -->
+                        </select> 
                     </div>
                 </div>
                 
-                <!-- ক্যাটাগরি গ্রুপ এখন লুকানো থাকবে, শুধুমাত্র ইভেন্টের জন্য দেখানো হবে -->
                 <div class="input-group" id="gameCategoryGroup" style="display: none;">
                     <label for="gameCategory">ক্যাটাগরি</label>
                     <select id="gameCategory"></select>
@@ -470,7 +484,11 @@
 
                 <div class="input-group">
                     <label for="inputType">ইনপুট টাইপ</label>
-                    <select id="inputType"> <option value="userid">Player ID (UID)</option> <option value="email">Email</option> </select>
+                    <select id="inputType"> 
+                        <option value="userid">Player ID (UID)</option> 
+                        <option value="email">Email</option> 
+                        <option value="mobile_number">মোবাইল নম্বর</option> <!-- পরিবর্তন ২ -->
+                    </select>
                 </div>
 
                 <div class="input-group">
@@ -552,18 +570,20 @@
                     <input type="datetime-local" id="eventEndDate">
                 </div>
                 <hr style="margin: 20px 0; border-color: var(--border-color);">
-                <!-- নতুন বাটন -->
+                <!-- পরিবর্তন ৩ -->
                 <div class="input-group">
                     <label>ইভেন্ট গেমস</label>
                     <p style="color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">ইভেন্টে সর্বোচ্চ ২টি গেম যোগ করা যাবে।</p>
-                    <button type="button" class="btn" id="addEventGameBtn"><i class="fas fa-plus" style="margin-right: 8px;"></i>এড গেমস</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn" id="addNewEventGameBtn"><i class="fas fa-plus" style="margin-right: 8px;"></i>নতুন গেম যোগ করুন</button>
+                        <button type="button" class="btn btn-success" id="addExistingEventGameBtn"><i class="fas fa-list-ul" style="margin-right: 8px;"></i>বিদ্যমান গেম যোগ করুন</button>
+                    </div>
                 </div>
                 <button type="submit" class="btn">সেটিংস সেভ করুন</button>
             </form>
         </div>
     </div>
 
-    <!-- ক্যাটাগরিতে গেম যোগ করার মডাল (নতুন) -->
     <div id="addGamesToCategoryModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -578,6 +598,19 @@
                 </div>
                 <button type="submit" class="btn" style="margin-top: 20px;">যোগ করুন</button>
             </form>
+        </div>
+    </div>
+
+    <div id="manageCategoryGamesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="manageCategoryGamesModalTitle"></h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">এই ক্যাটাগরি থেকে গেম বাদ দিতে 'Remove' বাটনে ক্লিক করুন।</p>
+            <div id="gamesInCategoryList" style="max-height: 400px; overflow-y: auto;">
+                <!-- গেমের তালিকা এখানে আসবে -->
+            </div>
         </div>
     </div>
 
@@ -747,6 +780,7 @@
             let tableHtml = '';
             snapshot.forEach(doc => {
                 const game = doc.data();
+                const statusClass = game.status === 'active' ? 'active' : (game.status === 'unavailable' ? 'unavailable' : 'Pending');
                 tableHtml += `
                     <tr>
                         <td>
@@ -756,7 +790,7 @@
                             </div>
                         </td>
                         <td>${game.category || 'ক্যাটাগরি নেই'}</td>
-                        <td><span class="status-badge status-${game.status === 'active' ? 'active' : 'Pending'}">${game.status}</span></td>
+                        <td><span class="status-badge status-${statusClass}">${game.status}</span></td>
                         <td>${game.packages ? game.packages.length : 0}</td>
                         <td>
                             <button class="action-btn edit" onclick="editGame('${doc.id}')"><i class="fas fa-edit"></i></button>
@@ -1253,7 +1287,6 @@
             document.getElementById('modalTitle').innerText = 'নতুন গেম যোগ করুন';
             packagesContainer.innerHTML = '';
             updatePreview('gameLogo', 'logoPreview');
-            // ক্যাটাগরি গ্রুপ লুকানো থাকবে
             document.getElementById('gameCategoryGroup').style.display = 'none';
             addPackageField();
             gameModal.style.display = 'block';
@@ -1361,7 +1394,6 @@
             };
 
             const categoryInput = document.getElementById('gameCategory');
-            // শুধুমাত্র যদি ক্যাটাগরি ফিল্ড দৃশ্যমান এবং সক্রিয় থাকে (ইভেন্টের জন্য)
             if (document.getElementById('gameCategoryGroup').style.display !== 'none' && categoryInput.value) {
                 gameData.category = categoryInput.value;
             }
@@ -1371,7 +1403,6 @@
                     await db.collection('games').doc(gameId).update(gameData);
                     alert("গেম সফলভাবে আপডেট হয়েছে!");
                 } else {
-                    // নতুন গেমে ক্যাটাগরি খালি থাকবে
                     if (!gameData.category) {
                         gameData.category = '';
                     }
@@ -1474,6 +1505,7 @@
         const manageCategoriesBtn = document.getElementById('manageCategoriesBtn');
         const categoryForm = document.getElementById('categoryForm');
         const addGamesToCategoryModal = document.getElementById('addGamesToCategoryModal');
+        const manageCategoryGamesModal = document.getElementById('manageCategoryGamesModal'); // পরিবর্তন ৪
 
         manageCategoriesBtn.onclick = async () => {
             await loadCategories();
@@ -1483,22 +1515,30 @@
                 const categoryName = availableCategories[i] || '';
                 const entry = document.createElement('div');
                 entry.className = 'category-management-entry';
+                // পরিবর্তন ৪: বাটন যুক্ত করা হয়েছে
                 entry.innerHTML = `
                     <label style="font-weight: 600;">${i + 1}.</label>
                     <input type="text" id="categoryName${i}" placeholder="ক্যাটাগরির নাম দিন" value="${categoryName}">
-                    <button type="button" class="btn btn-success add-games-to-cat-btn" data-index="${i}" ${!categoryName ? 'disabled' : ''}>গেমস যোগ করুন</button>
-                    <button type="button" class="btn btn-danger delete-cat-btn" data-name="${categoryName}" ${!categoryName ? 'disabled' : ''}><i class="fas fa-trash"></i></button>
+                    <button type="button" class="btn btn-success add-games-to-cat-btn" data-index="${i}" ${!categoryName ? 'disabled' : ''} title="গেম যোগ করুন"><i class="fas fa-plus"></i></button>
+                    <button type="button" class="btn edit-cat-games-btn" data-name="${categoryName}" ${!categoryName ? 'disabled' : ''} title="গেম এডিট/রিমুভ করুন"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="btn btn-danger delete-cat-btn" data-name="${categoryName}" ${!categoryName ? 'disabled' : ''} title="ক্যাটাগরি ডিলিট করুন"><i class="fas fa-trash"></i></button>
                 `;
                 container.appendChild(entry);
             }
             
-            // Event Listeners
             container.querySelectorAll('.add-games-to-cat-btn').forEach(btn => {
                 btn.onclick = () => {
                     const index = btn.dataset.index;
                     const catName = document.getElementById(`categoryName${index}`).value.trim();
                     if(catName) openAddGamesToCategoryModal(catName);
                     else alert("গেম যোগ করার আগে ক্যাটাগরির নাম দিন।");
+                };
+            });
+            // পরিবর্তন ৪: এডিট বাটনের জন্য ইভেন্ট লিসেনার
+            container.querySelectorAll('.edit-cat-games-btn').forEach(btn => {
+                btn.onclick = () => {
+                    if (btn.dataset.name) openManageCategoryGamesModal(btn.dataset.name);
+                    else alert("গেম ম্যানেজ করার জন্য এটি একটি সেভ করা ক্যাটাগরি হতে হবে।");
                 };
             });
              container.querySelectorAll('.delete-cat-btn').forEach(btn => {
@@ -1511,13 +1551,61 @@
                 input.oninput = (e) => {
                     const parent = e.target.parentElement;
                     const addBtn = parent.querySelector('.add-games-to-cat-btn');
+                    const editBtn = parent.querySelector('.edit-cat-games-btn');
                     const catName = e.target.value.trim();
-                    if(catName) addBtn.removeAttribute('disabled');
-                    else addBtn.setAttribute('disabled', 'true');
+                    if(catName) {
+                         addBtn.removeAttribute('disabled');
+                         editBtn.removeAttribute('disabled');
+                    } else {
+                        addBtn.setAttribute('disabled', 'true');
+                        editBtn.setAttribute('disabled', 'true');
+                    }
                 };
             });
             categoryModal.style.display = 'block';
         };
+
+        // পরিবর্তন ৪: নতুন ফাংশন
+        async function openManageCategoryGamesModal(categoryName) {
+            document.getElementById('manageCategoryGamesModalTitle').innerText = `'${categoryName}' ক্যাটাগরির গেমসমূহ`;
+            const listContainer = document.getElementById('gamesInCategoryList');
+            listContainer.innerHTML = '<p>লোড হচ্ছে...</p>';
+            manageCategoryGamesModal.style.display = 'block';
+
+            const snapshot = await db.collection('games').where('category', '==', categoryName).get();
+            if (snapshot.empty) {
+                listContainer.innerHTML = '<p>এই ক্যাটাগরিতে কোনো গেম পাওয়া যায়নি।</p>';
+                return;
+            }
+
+            listContainer.innerHTML = '';
+            snapshot.forEach(doc => {
+                const game = doc.data();
+                const item = document.createElement('div');
+                item.className = 'game-item';
+                item.innerHTML = `
+                    <label>${game.name}</label>
+                    <button type="button" class="btn btn-danger" onclick="removeGameFromCategory('${doc.id}', '${categoryName}')" style="padding: 6px 12px; font-size: 14px;">Remove</button>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        // পরিবর্তন ৪: নতুন ফাংশন
+        async function removeGameFromCategory(gameId, categoryName) {
+            if (!confirm("আপনি কি এই গেমটিকে ক্যাটাগরি থেকে বাদ দিতে চান?")) return;
+
+            try {
+                await db.collection('games').doc(gameId).update({ category: '' });
+                alert("গেমটিকে ক্যাটাগরি থেকে সফলভাবে বাদ দেওয়া হয়েছে।");
+                openManageCategoryGamesModal(categoryName); // মডাল রিফ্রেশ
+                loadGames(); // পেজের টেবিল রিফ্রেশ
+            } catch (error) {
+                alert("গেমটি বাদ দেওয়ার সময় একটি ত্রুটি হয়েছে: " + error.message);
+                console.error(error);
+            }
+        }
+
 
         async function openAddGamesToCategoryModal(categoryName) {
             document.getElementById('addGamesToCategoryModalTitle').innerText = `'${categoryName}' ক্যাটাগরিতে গেম যোগ করুন`;
@@ -1525,10 +1613,15 @@
 
             const listContainer = document.getElementById('uncategorizedGamesList');
             listContainer.innerHTML = '<p>লোড হচ্ছে...</p>';
+            
+            const gamesRef = db.collection('games');
+            // Firestore does not support 'OR' queries directly in this way ('!=' or 'not-in' can be tricky with nulls)
+            // A common workaround is to query for empty string and null separately, but for simplicity, we assume category is set to '' for uncategorized.
+            const snapshot = await gamesRef.where('category', 'in', ['', null]).get();
 
-            const snapshot = await db.collection('games').where('category', 'in', ['', null]).get();
             if (snapshot.empty) {
                 listContainer.innerHTML = '<p>ক্যাটাগরিবিহীন কোনো গেম পাওয়া যায়নি।</p>';
+                 addGamesToCategoryModal.style.display = 'block';
                 return;
             }
             
@@ -1538,8 +1631,10 @@
                 const item = document.createElement('div');
                 item.className = 'game-item';
                 item.innerHTML = `
-                    <input type="checkbox" id="${doc.id}" value="${doc.id}">
-                    <label for="${doc.id}">${game.name}</label>
+                    <div>
+                        <input type="checkbox" id="${doc.id}" value="${doc.id}" style="transform: scale(1.2);">
+                        <label for="${doc.id}" style="margin-left: 8px;">${game.name}</label>
+                    </div>
                 `;
                 listContainer.appendChild(item);
             });
@@ -1550,7 +1645,6 @@
             if (!confirm(`আপনি কি '${categoryName}' ক্যাটাগরিটি মুছে ফেলতে চান? এই ক্যাটাগরির অন্তর্ভুক্ত সকল গেম ক্যাটাগরিবিহীন হয়ে যাবে।`)) return;
 
             try {
-                // Step 1: Uncategorize games
                 const gamesSnapshot = await db.collection('games').where('category', '==', categoryName).get();
                 const batch = db.batch();
                 gamesSnapshot.forEach(doc => {
@@ -1558,13 +1652,12 @@
                 });
                 await batch.commit();
 
-                // Step 2: Remove category from settings
                 const newCategories = availableCategories.filter(cat => cat !== categoryName);
                 await db.collection('settings').doc('categories').set({ names: newCategories });
 
                 alert(`'${categoryName}' ক্যাটাগরিটি সফলভাবে ডিলিট করা হয়েছে।`);
                 await loadCategories();
-                manageCategoriesBtn.click(); // Refresh modal
+                manageCategoriesBtn.click();
                 loadGames();
             } catch (error) {
                 alert("ডিলিট করার সময় একটি ত্রুটি হয়েছে: " + error.message);
@@ -1574,9 +1667,11 @@
 
         document.querySelector('#categoryModal .close-btn').onclick = () => categoryModal.style.display = 'none';
         document.querySelector('#addGamesToCategoryModal .close-btn').onclick = () => addGamesToCategoryModal.style.display = 'none';
+        document.querySelector('#manageCategoryGamesModal .close-btn').onclick = () => manageCategoryGamesModal.style.display = 'none'; // পরিবর্তন ৪
         window.addEventListener('click', (e) => { 
             if (e.target === categoryModal) categoryModal.style.display = 'none';
             if (e.target === addGamesToCategoryModal) addGamesToCategoryModal.style.display = 'none';
+            if (e.target === manageCategoryGamesModal) manageCategoryGamesModal.style.display = 'none'; // পরিবর্তন ৪
         });
 
         categoryForm.addEventListener('submit', async (e) => {
@@ -1616,7 +1711,8 @@
                 alert(`${selectedGames.length}টি গেম '${categoryName}' ক্যাটাগরিতে যোগ করা হয়েছে।`);
                 addGamesToCategoryModal.style.display = 'none';
                 loadGames();
-            } catch (error) {
+            } catch (error)
+            {
                 alert("গেম যোগ করার সময় একটি ত্রুটি হয়েছে: " + error.message);
             }
         });
@@ -1634,7 +1730,8 @@
         const eventModal = document.getElementById('eventModal');
         const manageEventBtn = document.getElementById('manageEventBtn');
         const eventForm = document.getElementById('eventForm');
-        const addEventGameBtn = document.getElementById('addEventGameBtn');
+        const addNewEventGameBtn = document.getElementById('addNewEventGameBtn'); // পরিবর্তন ৩
+        const addExistingEventGameBtn = document.getElementById('addExistingEventGameBtn'); // পরিবর্তন ৩
 
         manageEventBtn.onclick = async () => {
             const doc = await db.collection('settings').doc('event').get();
@@ -1655,7 +1752,7 @@
             eventModal.style.display = 'block';
         };
 
-        addEventGameBtn.onclick = async () => {
+        addNewEventGameBtn.onclick = async () => { // পরিবর্তন ৩
             try {
                 const snapshot = await db.collection('games').where('category', '==', 'Event').get();
                 if (snapshot.size >= 2) {
@@ -1663,7 +1760,6 @@
                     return;
                 }
 
-                // Open game modal for Event
                 gameForm.reset();
                 document.querySelectorAll('.error-message').forEach(el => el.innerText = '');
                 document.getElementById('gameId').value = '';
@@ -1672,20 +1768,23 @@
                 updatePreview('gameLogo', 'logoPreview');
                 addPackageField();
                 
-                // Setup category for Event
                 const categoryGroup = document.getElementById('gameCategoryGroup');
                 const categorySelect = document.getElementById('gameCategory');
                 categorySelect.innerHTML = `<option value="Event" selected>Event</option>`;
                 categorySelect.disabled = true;
                 categoryGroup.style.display = 'block';
                 
-                eventModal.style.display = 'none'; // Close event modal
-                gameModal.style.display = 'block'; // Open game modal
+                eventModal.style.display = 'none';
+                gameModal.style.display = 'block';
 
             } catch(error) {
                 alert("একটি ত্রুটি হয়েছে: " + error.message);
                 console.error(error);
             }
+        };
+
+        addExistingEventGameBtn.onclick = () => { // পরিবর্তন ৩
+             openAddGamesToCategoryModal('Event');
         };
 
         document.querySelector('#eventModal .close-btn').onclick = () => eventModal.style.display = 'none';
