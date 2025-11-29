@@ -139,7 +139,7 @@
         /* Support Chat styles */
         .chat-container { display: flex; height: 70vh; }
         .chat-user-list { width: 300px; border-right: 1px solid var(--border-color); overflow-y: auto; }
-        .chat-user { padding: 15px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
+        .chat-user { padding: 15px; cursor: pointer; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .chat-user:hover, .chat-user.active { background-color: var(--background-color); }
         .chat-user p { font-weight: 600; }
         .chat-user span { font-size: 12px; color: var(--text-secondary); }
@@ -888,11 +888,63 @@
                 const userDiv = document.createElement('div');
                 userDiv.className = 'chat-user';
                 userDiv.dataset.userid = chat.userId;
-                userDiv.innerHTML = `<p>${chat.userName}</p><span>${chat.lastMessage.substring(0, 30)}...</span>`;
-                userDiv.onclick = () => openUserChat(chat.userId, chat.userName);
+                
+                // Main content of the user div (name and last message)
+                const userInfo = document.createElement('div');
+                userInfo.style.flexGrow = '1';
+                userInfo.innerHTML = `<p>${chat.userName}</p><span>${chat.lastMessage.substring(0, 25)}...</span>`;
+                userInfo.onclick = () => openUserChat(chat.userId, chat.userName);
+
+                // Delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'action-btn delete';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.title = 'এই কনভার্সেশনটি ডিলিট করুন';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation(); // Prevents chat window from opening
+                    deleteUserChatHistory(chat.userId);
+                };
+
+                userDiv.appendChild(userInfo);
+                userDiv.appendChild(deleteBtn);
                 chatListDiv.appendChild(userDiv);
             });
         }
+
+        async function deleteUserChatHistory(userId) {
+            const userName = usersMap[userId]?.email || userId;
+            if (!confirm(`আপনি কি '${userName}' এর সাথে সমস্ত চ্যাট হিস্ট্রি মুছে ফেলতে চান? এই কাজটি ফেরানো যাবে না।`)) {
+                return;
+            }
+            try {
+                const querySnapshot = await db.collection('supportMessages').where('userId', '==', userId).get();
+                if (querySnapshot.empty) {
+                    alert("এই ব্যবহারকারীর জন্য কোনো চ্যাট হিস্ট্রি পাওয়া যায়নি।");
+                    loadSupportChats();
+                    return;
+                }
+                const batch = db.batch();
+                querySnapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+
+                alert('চ্যাট হিস্ট্রি সফলভাবে ডিলিট করা হয়েছে।');
+
+                if (activeChatUserId === userId) {
+                    document.getElementById('chatHeader').textContent = 'একজন ব্যবহারকারী সিলেক্ট করুন';
+                    document.getElementById('chatMessages').innerHTML = '';
+                    document.getElementById('chatReplyContainer').style.display = 'none';
+                    activeChatUserId = null;
+                    if(unsubscribeActiveChat) unsubscribeActiveChat();
+                }
+                loadSupportChats();
+            } catch (error) {
+                console.error("চ্যাট হিস্ট্রি ডিলিট করতে সমস্যা হয়েছে:", error);
+                alert("ত্রুটি: " + error.message);
+            }
+        }
+
 
         function openUserChat(userId, userName) {
             activeChatUserId = userId;
@@ -922,15 +974,13 @@
                         msgEl.className = `message ${data.sender}`;
                         msgEl.innerHTML = formatMessage(data.message);
 
-                        // ### START: ADDED DELETE BUTTON ###
                         const deleteBtn = document.createElement('i');
                         deleteBtn.className = 'fas fa-trash delete-msg-btn';
                         deleteBtn.title = 'মেসেজ ডিলিট করুন';
                         deleteBtn.onclick = () => deleteSupportMessage(data.id);
-                        // ### END: ADDED DELETE BUTTON ###
 
                         wrapper.appendChild(msgEl);
-                        wrapper.appendChild(deleteBtn); // Append the button to the wrapper
+                        wrapper.appendChild(deleteBtn);
                         messagesDiv.appendChild(wrapper);
                     });
                     messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -950,14 +1000,12 @@
             }
         };
 
-        // ### START: ADDED DELETE FUNCTION ###
         function deleteSupportMessage(messageId) {
             if (confirm("আপনি কি নিশ্চিতভাবে এই মেসেজটি ডিলিট করতে চান?")) {
                 db.collection('supportMessages').doc(messageId).delete()
                   .catch(e => alert("ডিলিট করতে সমস্যা হয়েছে: " + e.message));
             }
         }
-        // ### END: ADDED DELETE FUNCTION ###
 
         // Popup Management Functions
         async function loadPopupSettings() {
