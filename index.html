@@ -2,8 +2,9 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameStore Admin Panel</title>
+    <title>Vercel Admin Panel</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -237,7 +238,7 @@
             </section>
             
             <section id="games" class="page">
-                <div style="text-align: right; margin-bottom: 20px;"><button class="btn" id="addGameBtn"><i class="fas fa-plus" style="margin-right: 8px;"></i>নতুন গেম যোগ করুন</button></div>
+                <div style="text-align: right; margin-bottom: 20px;"><button class="btn" id="addGameBtn"><i class="fas fa-plus" style="margin-right: 8px;"></i>Add New Card</button></div>
                 <div class="card">
                     <div class="table-container">
                         <table>
@@ -286,14 +287,14 @@
                 <div class="card">
                     <div class="chat-container">
                         <div class="chat-user-list" id="chatUserList">
-                            <p style="padding: 15px; text-align: center; color: var(--text-secondary);">ব্যবহারকারী লোড হচ্ছে...</p>
+                            <p style="padding: 15px; text-align: center; color: var(--text-secondary);">loading...</p>
                         </div>
                         <div class="chat-window" id="chatWindow">
                             <div class="chat-header" id="chatHeader">একজন ব্যবহারকারী সিলেক্ট করুন</div>
                             <div class="chat-messages" id="chatMessages"></div>
                             <div class="chat-reply" id="chatReplyContainer" style="display: none;">
-                                <input type="text" id="chatReplyInput" placeholder="এখানে উত্তর লিখুন...">
-                                <button class="btn" id="chatReplyBtn">পাঠান</button>
+                                <input type="text" id="chatReplyInput" placeholder="Answer...">
+                                <button class="btn" id="chatReplyBtn">send</button>
                             </div>
                         </div>
                     </div>
@@ -303,7 +304,7 @@
             <!-- Popup Section Updated -->
             <section id="popup" class="page">
                 <div class="card">
-                    <h2>পপ-আপ ম্যানেজমেন্ট</h2>
+                    <h2>Pop up ম্যানেজমেন্ট</h2>
                      <div class="input-group" style="display: flex; align-items: center; justify-content: space-between;">
                          <label for="popupStatusToggle" style="margin: 0;">পপ-আপ দেখান</label>
                         <label class="switch">
@@ -313,30 +314,30 @@
                     </div>
                     <hr style="margin: 20px 0; border-color: var(--border-color);">
                     <div class="input-group">
-                        <label for="popupTitleInput">টাইটেল</label>
+                        <label for="popupTitleInput">Titel</label>
                         <input type="text" id="popupTitleInput" placeholder="বিশেষ ঘোষণা">
                     </div>
                     <div class="input-group">
                         <label for="popupMessageInput">মেসেজ</label>
-                        <textarea id="popupMessageInput" rows="4" placeholder="পপ-আপে কি মেসেজ দেখাবে..."></textarea>
+                        <textarea id="popupMessageInput" rows="4" placeholder="type here..."></textarea>
                     </div>
                     
                     <!-- New Button Fields -->
                     <div class="input-group">
-                        <label for="popupButtonTextInput">বাটনের নাম (Button Text)</label>
-                        <input type="text" id="popupButtonTextInput" placeholder="Tap Here">
+                        <label for="popupButtonTextInput">Button Name</label>
+                        <input type="text" id="popupButtonTextInput" placeholder="e.g. Tap Here">
                     </div>
                     <div class="input-group">
-                        <label for="popupButtonLinkInput">বাটনের লিংক (Button Link)</label>
+                        <label for="popupButtonLinkInput">Button Link</label>
                         <input type="url" id="popupButtonLinkInput" placeholder="https://example.com">
                         <small style="color: var(--text-secondary);">লিংক ফাঁকা রাখলে বাটনটি ইউজার প্যানেলে দেখাবে না।</small>
                     </div>
                     
                     <div class="input-group">
-                        <label for="popupImageUrlInput">ছবির URL</label>
+                        <label for="popupImageUrlInput">image URL</label>
                         <input type="url" id="popupImageUrlInput" placeholder="https://example.com/image.png">
                     </div>
-                    <button class="btn" onclick="updatePopup()">আপডেট করুন</button>
+                    <button class="btn" onclick="updatePopup()">Update</button>
                 </div>
             </section>
 
@@ -344,48 +345,48 @@
                 <div class="card">
                     <h2>ব্র্যান্ডিং</h2>
                     <div class="input-group">
-                        <label for="appName">অ্যাপের নাম</label>
+                        <label for="appName">Site Name</label>
                         <input type="text" id="appName" placeholder="GameStore">
                     </div>
                     <div class="input-group">
-                        <label for="profileIconUrl">হেডার প্রোফাইল আইকন URL</label>
+                        <label for="profileIconUrl">Site logo URL</label>
                         <input type="text" id="profileIconUrl" placeholder="https://example.com/avatar.png" onkeyup="updatePreview('profileIconUrl', 'profileIconPreview')">
                         <img id="profileIconPreview" class="preview-img" src="" alt="Profile Icon Preview">
                     </div>
-                    <button class="btn" onclick="updateBranding()">ব্র্যান্ডিং সেভ করুন</button>
+                    <button class="btn" onclick="updateBranding()">save</button>
                 </div>
 
                 <!-- Marquee Section Added Here -->
                 <div class="card">
-                    <h2>হেডার মারকুই / নোটিশ</h2>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px;">এই লেখাটি হোমপেজের হেডারের নিচে স্ক্রল করতে থাকবে।</p>
+                    <h2>Notice board</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">.</p>
                     <div class="input-group">
-                        <label for="marqueeText">নোটিশ টেক্সট</label>
-                        <textarea id="marqueeText" rows="3" placeholder="স্বাগতম! আমাদের শপে বিকাশ পেমেন্টে ডিসকাউন্ট চলছে..."></textarea>
+                        <label for="marqueeText">text...</label>
+                        <textarea id="marqueeText" rows="3" placeholder="e.g. welcome"></textarea>
                     </div>
-                    <button class="btn" onclick="updateMarquee()">নোটিশ আপডেট করুন</button>
+                    <button class="btn" onclick="updateMarquee()">save</button>
                 </div>
 
                 <div class="card">
-                    <h2>ডিফল্ট প্রোফাইল লোগো</h2>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px;">নতুন ব্যবহারকারী রেজিস্ট্রেশন করার সময় নামের উপর ভিত্তি করে এই লোগোগুলো স্বয়ংক্রিয়ভাবে সেট হবে।</p>
+                    <h2>User profile Logo</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">avatar save autometicaly</p>
                     <div class="form-grid">
                         <div class="input-group">
-                            <label for="maleAvatarUrl">Male ইউজার লোগো URL</label>
+                            <label for="maleAvatarUrl">Male avatar URL</label>
                             <input type="text" id="maleAvatarUrl" placeholder="https://example.com/male.png" onkeyup="updatePreview('maleAvatarUrl', 'maleAvatarPreview')">
                             <img id="maleAvatarPreview" class="preview-img" src="" alt="Male Avatar Preview">
                         </div>
                         <div class="input-group">
-                            <label for="femaleAvatarUrl">Female ইউজার লোগো URL</label>
+                            <label for="femaleAvatarUrl">Female avatar URL</label>
                             <input type="text" id="femaleAvatarUrl" placeholder="https://example.com/female.png" onkeyup="updatePreview('femaleAvatarUrl', 'femaleAvatarPreview')">
                             <img id="femaleAvatarPreview" class="preview-img" src="" alt="Female Avatar Preview">
                         </div>
                     </div>
-                    <button class="btn" onclick="updateDefaultAvatars()">লোগো সেভ করুন</button>
+                    <button class="btn" onclick="updateDefaultAvatars()">save</button>
                 </div>
 
                 <div class="card">
-                    <h2>হোমপেজ স্লাইডার (সর্বোচ্চ ৫টি)</h2>
+                    <h2>হোমপেজ স্লাইডার upto 5x</h2>
                     <div id="sliderInputsContainer">
                         <!-- Slider inputs will be generated here -->
                     </div>
@@ -409,15 +410,42 @@
     <div id="gameModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">নতুন গেম যোগ করুন</h2>
+                <h2 id="modalTitle">Add New</h2>
                 <span class="close-btn">&times;</span>
             </div>
             <form id="gameForm">
                 <input type="hidden" id="gameId">
                 <div class="form-grid">
-                    <div class="input-group"> <label for="gameName">গেমের নাম</label> <input type="text" id="gameName" required> </div>
+                    <div class="input-group"> <label for="gameName">কার্ড নাম</label> <input type="text" id="gameName" required> </div>
                     <div class="input-group"> <label for="gameStatus">স্ট্যাটাস</label> <select id="gameStatus" class="input-group"> <option value="active">Active</option> <option value="inactive">Inactive</option> </select> </div>
                 </div>
+                
+                <!-- NEW: Category, Input Type and Description Fields -->
+                <div class="input-group">
+                    <label for="gameCategory">ক্যাটাগরি</label>
+                    <input type="text" id="gameCategory" placeholder="যেমন: Games (খালি রাখলে ডিফল্ট দেখাবে)">
+                </div>
+                
+                <!-- ADDED: Ranking and Badge Fields (Update: Badge no limit) -->
+                <div class="form-grid">
+                    <div class="input-group"> <label for="categoryRank">ক্যাটাগরি র‍্যাংকিং (Ranking)</label> <input type="number" id="categoryRank" placeholder="1, 2, 3..."> </div>
+                    <div class="input-group"> <label for="badgeText">ব্যাজ টেক্সট (Badge)</label> <input type="text" id="badgeText" placeholder="HOT / Emoji"> </div>
+                </div>
+
+                <!-- ADDED: Dynamic Input Type Selection -->
+                <div class="input-group">
+                    <label for="inputType">input type</label>
+                    <select id="inputType" class="input-group">
+                        <option value="userid">Player ID (UID)</option>
+                        <option value="email">Email</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="gameDescription">বিস্তারিত নিয়মাবলী (Description Box)</label>
+                    <textarea id="gameDescription" rows="4" placeholder="প্রোডাক্টের বিস্তারিত বা নিয়মাবলী এখানে লিখুন..."></textarea>
+                </div>
+
                 <div class="input-group"> 
                     <label for="gameLogo">লোগো URL</label> 
                     <input type="text" id="gameLogo" onkeyup="updatePreview('gameLogo', 'logoPreview')" required> 
@@ -606,7 +634,7 @@
                         <td><span class="status-badge status-${status}">${status}</span></td>
                         <td>
                             <button class="action-btn edit" onclick="editUserBalance('${userId}', ${balance})" title="ব্যালেন্স এডিট করুন"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn toggle-status" onclick="toggleUserStatus('${userId}', '${status}')" title="${isBlocked ? 'আনব্লক করুন' : 'ব্লক করুন'}">
+                            <button class="action-btn toggle-status" onclick="toggleUserStatus('${userId}')" title="${isBlocked ? 'আনব্লক করুন' : 'ব্লক করুন'}">
                                 <i class="fas ${isBlocked ? 'fa-lock-open' : 'fa-lock'}"></i>
                             </button>
                             <button class="action-btn delete" onclick="deleteUser('${userId}')" title="ডিলিট করুন"><i class="fas fa-trash"></i></button>
@@ -748,21 +776,39 @@
             }
         }
         
-        async function toggleUserStatus(userId, currentStatus) {
-            const newStatus = currentStatus === 'active' ? 'blocked' : 'active';
-            const action = newStatus === 'blocked' ? 'ব্লক' : 'আনব্লক';
-            if (confirm(`আপনি কি এই ব্যবহারকারীকে ${action} করতে চান?`)) {
-                await db.collection('users').doc(userId).update({ status: newStatus });
-                alert(`ব্যবহারকারীকে সফলভাবে ${action} করা হয়েছে।`);
-                loadUsers();
+        // MODIFIED: Toggle User Status Logic with Fresh Data Fetch
+        async function toggleUserStatus(userId) {
+            try {
+                const userRef = db.collection('users').doc(userId);
+                const doc = await userRef.get();
+                if (!doc.exists) {
+                    alert("ব্যবহারকারী পাওয়া যায়নি।");
+                    return;
+                }
+                const currentStatus = doc.data().status || 'active';
+                const newStatus = currentStatus === 'active' ? 'blocked' : 'active';
+                const action = newStatus === 'blocked' ? 'ব্লক' : 'আনব্লক';
+
+                if (confirm(`আপনি কি এই ব্যবহারকারীকে ${action} করতে চান?`)) {
+                    await userRef.update({ status: newStatus });
+                    alert(`ব্যবহারকারীকে সফলভাবে ${action} করা হয়েছে।`);
+                    loadUsers();
+                }
+            } catch (error) {
+                alert("স্ট্যাটাস পরিবর্তন করতে সমস্যা হয়েছে: " + error.message);
             }
         }
 
+        // MODIFIED: Delete User Logic (Firestore Only)
         async function deleteUser(userId) {
-            if (confirm("আপনি কি নিশ্চিতভাবে এই ব্যবহারকারীকে মুছে ফেলতে চান? এটি ফেরানো যাবে না।")) {
-                await db.collection('users').doc(userId).delete();
-                alert('ব্যবহারকারীকে সফলভাবে মুছে ফেলা হয়েছে।');
-                loadUsers();
+            if (confirm("আপনি কি নিশ্চিতভাবে এই ব্যবহারকারীকে ডাটাবেজ থেকে মুছে ফেলতে চান? এটি ফেরানো যাবে না।\n\nবিঃদ্রঃ: এটি শুধুমাত্র অ্যাপ ডাটাবেজ থেকে ডিলিট করবে। Firebase Authentication থেকে ডিলিট করার জন্য Firebase Console ব্যবহার করুন।")) {
+                try {
+                    await db.collection('users').doc(userId).delete();
+                    alert('ব্যবহারকারীকে সফলভাবে অ্যাপ ডাটাবেজ থেকে মুছে ফেলা হয়েছে।');
+                    loadUsers();
+                } catch (error) {
+                    alert("ডিলিট করতে সমস্যা হয়েছে: " + error.message);
+                }
             }
         }
         
@@ -876,13 +922,15 @@
                         msgEl.className = `message ${data.sender}`;
                         msgEl.innerHTML = formatMessage(data.message);
 
+                        // ### START: ADDED DELETE BUTTON ###
                         const deleteBtn = document.createElement('i');
                         deleteBtn.className = 'fas fa-trash delete-msg-btn';
                         deleteBtn.title = 'মেসেজ ডিলিট করুন';
                         deleteBtn.onclick = () => deleteSupportMessage(data.id);
+                        // ### END: ADDED DELETE BUTTON ###
 
                         wrapper.appendChild(msgEl);
-                        wrapper.appendChild(deleteBtn);
+                        wrapper.appendChild(deleteBtn); // Append the button to the wrapper
                         messagesDiv.appendChild(wrapper);
                     });
                     messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -902,12 +950,14 @@
             }
         };
 
+        // ### START: ADDED DELETE FUNCTION ###
         function deleteSupportMessage(messageId) {
             if (confirm("আপনি কি নিশ্চিতভাবে এই মেসেজটি ডিলিট করতে চান?")) {
                 db.collection('supportMessages').doc(messageId).delete()
                   .catch(e => alert("ডিলিট করতে সমস্যা হয়েছে: " + e.message));
             }
         }
+        // ### END: ADDED DELETE FUNCTION ###
 
         // Popup Management Functions
         async function loadPopupSettings() {
@@ -1039,6 +1089,13 @@
         addGameBtn.onclick = () => {
             gameForm.reset();
             document.getElementById('gameId').value = '';
+            // Reset new fields
+            document.getElementById('gameCategory').value = '';
+            document.getElementById('categoryRank').value = ''; // Reset Rank
+            document.getElementById('badgeText').value = ''; // Reset Badge
+            document.getElementById('inputType').value = 'userid'; // Default to userid
+            document.getElementById('gameDescription').value = '';
+            
             document.getElementById('modalTitle').innerText = 'নতুন গেম যোগ করুন';
             packagesContainer.innerHTML = '';
             updatePreview('gameLogo', 'logoPreview');
@@ -1049,7 +1106,8 @@
         window.onclick = (event) => { if (event.target == gameModal) gameModal.style.display = 'none'; }
         addPackageBtn.addEventListener('click', () => addPackageField());
 
-        function addPackageField(amount = '', price = '') {
+        // MODIFIED: Added stock parameter with VALIDATION
+        function addPackageField(amount = '', price = '', stock = '') {
             const div = document.createElement('div');
             div.className = 'form-grid package-entry';
             div.style.alignItems = 'center';
@@ -1058,9 +1116,11 @@
                  <div class="input-group">
                     <input type="text" class="package-amount" placeholder="অ্যামাউন্ট (e.g., 100 Diamonds)" value="${amount}" required>
                 </div>
-                <div class="input-group" style="display: flex; align-items: center;">
+                <div class="input-group" style="display: flex; align-items: center; gap: 5px;">
                     <input type="text" class="package-price" placeholder="মূল্য (e.g., ৳120)" value="${price}" required>
-                    <button type="button" class="action-btn delete" onclick="this.parentElement.parentElement.remove()" style="margin-left: 10px;"><i class="fas fa-trash"></i></button>
+                    <!-- Stock Input Added with Validation -->
+                    <input type="number" class="package-stock" placeholder="Stock" value="${stock}" style="width: 80px;" min="0" oninput="validity.valid||(value='');">
+                    <button type="button" class="action-btn delete" onclick="this.parentElement.parentElement.remove()"><i class="fas fa-trash"></i></button>
                 </div>`;
             packagesContainer.appendChild(div);
         }
@@ -1074,11 +1134,20 @@
             document.getElementById('gameStatus').value = game.status;
             document.getElementById('gameLogo').value = game.logo;
             document.getElementById('gameBanner').value = game.banner;
+            
+            // Populate new fields
+            document.getElementById('gameCategory').value = game.category || '';
+            document.getElementById('categoryRank').value = game.categoryRank || ''; // Load Rank
+            document.getElementById('badgeText').value = game.badgeText || ''; // Load Badge
+            document.getElementById('inputType').value = game.inputType || 'userid'; // Load input type
+            document.getElementById('gameDescription').value = game.description || '';
+
             document.getElementById('modalTitle').innerText = 'গেম এডিট করুন';
             packagesContainer.innerHTML = '';
             updatePreview('gameLogo', 'logoPreview');
             if (game.packages && game.packages.length > 0) {
-                game.packages.forEach(pkg => addPackageField(pkg.amount, pkg.price));
+                // MODIFIED: Pass stock value
+                game.packages.forEach(pkg => addPackageField(pkg.amount, pkg.price, pkg.stock));
             } else { addPackageField(); }
             gameModal.style.display = 'block';
         }
@@ -1090,12 +1159,21 @@
             document.querySelectorAll('.package-entry').forEach(entry => {
                 const amount = entry.querySelector('.package-amount').value;
                 const price = entry.querySelector('.package-price').value;
-                if (amount && price) packages.push({ amount, price });
+                // MODIFIED: Get stock value with check
+                let stock = entry.querySelector('.package-stock').value;
+                if (stock && parseInt(stock) < 0) stock = "0"; // Force 0 if negative
+                
+                if (amount && price) packages.push({ amount, price, stock });
             });
 
             const gameData = {
                 name: document.getElementById('gameName').value,
                 status: document.getElementById('gameStatus').value,
+                category: document.getElementById('gameCategory').value, // Save category
+                categoryRank: document.getElementById('categoryRank').value, // Save Rank
+                badgeText: document.getElementById('badgeText').value, // Save Badge
+                inputType: document.getElementById('inputType').value, // Save input type
+                description: document.getElementById('gameDescription').value, // Save description
                 logo: document.getElementById('gameLogo').value,
                 banner: document.getElementById('gameBanner').value,
                 packages: packages
