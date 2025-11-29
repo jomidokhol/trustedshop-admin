@@ -116,6 +116,18 @@
         .action-btn.reject:hover { color: var(--danger-color); }
         .action-btn.toggle-status:hover { color: var(--warning-color); }
 
+        /* নতুন সংযোজন: কপি বাটন স্টাইল */
+        .copy-btn-inline {
+            background-color: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 14px;
+        }
+        .copy-btn-inline:hover { color: var(--primary-color); }
+        .copy-wrapper { display: flex; align-items: center; }
+
         .modal { display: none; position: fixed; z-index: 1002; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
         .modal-content { background-color: #fefefe; margin: 5% auto; padding: 30px; border: 1px solid #888; width: 90%; max-width: 650px; border-radius: 12px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
@@ -136,7 +148,6 @@
         input:checked + .slider { background-color: var(--success-color); }
         input:checked + .slider:before { transform: translateX(26px); }
 
-        /* Support Chat styles */
         .chat-container { display: flex; height: 70vh; }
         .chat-user-list { width: 300px; border-right: 1px solid var(--border-color); overflow-y: auto; }
         .chat-user { padding: 15px; cursor: pointer; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
@@ -241,7 +252,6 @@
             </section>
             
             <section id="games" class="page">
-                <!-- নতুন সংযোজন: পেজ অ্যাকশন বাটন -->
                 <div class="page-actions">
                     <button class="btn" id="manageEventBtn">ইভেন্ট ম্যানেজ করুন</button>
                     <button class="btn" id="manageCategoriesBtn">ক্যাটাগরি ম্যানেজ করুন</button>
@@ -371,7 +381,6 @@
                     <button class="btn" onclick="updateMarquee()">সেভ করুন</button>
                 </div>
 
-                <!-- নতুন সংযোজন: টার্মস অ্যান্ড কন্ডিশনস সেকশন -->
                 <div class="card">
                     <h2>টার্মস অ্যান্ড কন্ডিশনস</h2>
                     <div class="input-group">
@@ -442,10 +451,10 @@
                 </div>
                 
                 <div class="form-grid">
-                    <div class="input-group"> <label for="categoryRank">ক্যাটাগরি র‍্যাংকিং</label> <input type="number" id="categoryRank" placeholder="1, 2, 3..."> </div>
+                    <!-- ক্যাটাগরি র‍্যাংকিং সরানো হয়েছে -->
                     <div class="input-group"> <label for="gameRank">গেম র‍্যাংকিং (ক্যাটাগরির ভেতরে)</label> <input type="number" id="gameRank" placeholder="1, 2, 3..."> </div>
+                    <div class="input-group"> <label for="badgeText">ব্যাজ টেক্সট</label> <input type="text" id="badgeText" placeholder="HOT / Emoji"> </div>
                 </div>
-                <div class="input-group"> <label for="badgeText">ব্যাজ টেক্সট</label> <input type="text" id="badgeText" placeholder="HOT / Emoji"> </div>
 
                 <div class="input-group">
                     <label for="inputType">ইনপুট টাইপ</label>
@@ -490,7 +499,7 @@
         </div>
     </div>
 
-    <!-- নতুন সংযোজন: ক্যাটাগরি মডাল -->
+    <!-- ক্যাটাগরি মডাল -->
     <div id="categoryModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -505,7 +514,7 @@
         </div>
     </div>
 
-    <!-- নতুন সংযোজন: ইভেন্ট মডাল -->
+    <!-- ইভেন্ট মডাল -->
     <div id="eventModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -575,7 +584,7 @@
                 fetchAllUsers(); 
                 loadDashboardData();
                 loadBranding();
-                loadCategories(); // Load categories on login
+                loadCategories(); 
             } else {
                 loginContainer.style.display = 'flex';
                 adminWrapper.style.display = 'none';
@@ -720,6 +729,16 @@
             tbody.innerHTML = tableHtml || '<tr><td colspan="5">কোনো গেম পাওয়া যায়নি।</td></tr>';
         }
         
+        // নতুন সংযোজন: কপি টু ক্লিপবোর্ড ফাংশন
+        function copyToClipboard(text, type) {
+            if (!text || text === 'N/A' || text === 'null') return;
+            navigator.clipboard.writeText(text).then(() => {
+                alert(`${type} কপি করা হয়েছে: ${text}`);
+            }).catch(err => {
+                console.error('কপি করতে ব্যর্থ: ', err);
+            });
+        }
+        
         async function loadOrders() {
             const tbody = document.getElementById('ordersTableBody');
             tbody.innerHTML = '<tr><td colspan="9">লোড হচ্ছে...</td></tr>';
@@ -736,11 +755,11 @@
                 tableHtml += `
                     <tr>
                         <td>${order.date ? order.date.toDate().toLocaleString('bn-BD') : 'N/A'}</td>
-                        <td>${userEmail}</td>
+                        <td><div class="copy-wrapper">${userEmail} <button class="copy-btn-inline" onclick="copyToClipboard('${userEmail}', 'Email')"><i class="far fa-copy"></i></button></div></td>
                         <td>${order.game}</td>
-                        <td>${order.playerId}</td>
+                        <td><div class="copy-wrapper">${order.playerId} <button class="copy-btn-inline" onclick="copyToClipboard('${order.playerId}', 'Player ID')"><i class="far fa-copy"></i></button></div></td>
                         <td>${order.price}</td>
-                        <td>${order.userPaymentNumber || 'N/A'}</td>
+                        <td><div class="copy-wrapper">${order.userPaymentNumber || 'N/A'} <button class="copy-btn-inline" onclick="copyToClipboard('${order.userPaymentNumber}', 'Mobile Number')"><i class="far fa-copy"></i></button></div></td>
                         <td>${order.transactionId || 'N/A'}</td>
                         <td>
                             <select onchange="updateOrderStatus('${order.id}', this.value, '${order.paymentMethod}', '${order.userId}', ${order.price})" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
@@ -772,11 +791,11 @@
                 tableHtml += `
                     <tr>
                         <td>${request.date ? request.date.toDate().toLocaleString('bn-BD') : 'N/A'}</td>
-                        <td>${userEmail}</td>
+                        <td><div class="copy-wrapper">${userEmail} <button class="copy-btn-inline" onclick="copyToClipboard('${userEmail}', 'Email')"><i class="far fa-copy"></i></button></div></td>
                         <td>৳ ${request.amount}</td>
                         <td>${request.paymentMethod}</td>
-                        <td>${request.userPaymentNumber}</td>
-                        <td>${request.transactionId}</td>
+                        <td><div class="copy-wrapper">${request.userPaymentNumber} <button class="copy-btn-inline" onclick="copyToClipboard('${request.userPaymentNumber}', 'Mobile Number')"><i class="far fa-copy"></i></button></div></td>
+                        <td><div class="copy-wrapper">${request.transactionId} <button class="copy-btn-inline" onclick="copyToClipboard('${request.transactionId}', 'Transaction ID')"><i class="far fa-copy"></i></button></div></td>
                         <td><span class="status-badge status-${request.status}">${request.status}</span></td>
                         <td>
                             ${request.status === 'Pending' ? 
@@ -1089,7 +1108,6 @@
                 document.getElementById('marqueeText').value = noticeDoc.data().text || '';
             }
             
-            // নতুন সংযোজন: টার্মস লোড
             const termsDoc = await db.collection('settings').doc('terms').get();
             if (termsDoc.exists) {
                 document.getElementById('termsTitle').value = termsDoc.data().title || '';
@@ -1145,7 +1163,6 @@
             alert('মারকুই নোটিশ সফলভাবে আপডেট হয়েছে!');
         }
         
-        // নতুন সংযোজন: টার্মস আপডেট
         async function updateTerms() {
             const title = document.getElementById('termsTitle').value;
             const text = document.getElementById('termsText').value;
@@ -1191,7 +1208,6 @@
             gameForm.reset();
             document.getElementById('gameId').value = '';
             document.getElementById('gameRank').value = '';
-            document.getElementById('categoryRank').value = ''; 
             document.getElementById('badgeText').value = '';
             document.getElementById('inputType').value = 'userid';
             document.getElementById('gameDescription').value = '';
@@ -1235,8 +1251,7 @@
             document.getElementById('gameBanner').value = game.banner;
             
             await populateCategoryDropdown(game.category);
-
-            document.getElementById('categoryRank').value = game.categoryRank || '';
+            
             document.getElementById('gameRank').value = game.rank || '';
             document.getElementById('badgeText').value = game.badgeText || '';
             document.getElementById('inputType').value = game.inputType || 'userid';
@@ -1268,7 +1283,6 @@
                 name: document.getElementById('gameName').value,
                 status: document.getElementById('gameStatus').value,
                 category: document.getElementById('gameCategory').value,
-                categoryRank: document.getElementById('categoryRank').valueAsNumber || 999,
                 rank: document.getElementById('gameRank').valueAsNumber || 999,
                 badgeText: document.getElementById('badgeText').value,
                 inputType: document.getElementById('inputType').value,
@@ -1372,8 +1386,6 @@
             }
         });
         
-        // --- নতুন সংযোজন: ক্যাটাগরি ও ইভেন্ট ফাংশন ---
-
         const categoryModal = document.getElementById('categoryModal');
         const manageCategoriesBtn = document.getElementById('manageCategoriesBtn');
         const categoryForm = document.getElementById('categoryForm');
@@ -1404,7 +1416,7 @@
             await db.collection('settings').doc('categories').set({ names });
             alert('ক্যাটাগরি সফলভাবে সেভ হয়েছে!');
             categoryModal.style.display = 'none';
-            await loadCategories(); // রিলোড করুন
+            await loadCategories(); 
         });
         
         async function loadCategories() {
@@ -1420,7 +1432,6 @@
             await loadCategories();
             const select = document.getElementById('gameCategory');
             select.innerHTML = '<option value="">ক্যাটাগরি সিলেক্ট করুন</option>';
-            // Add "Event" as a fixed option
             select.innerHTML += `<option value="Event" ${selectedValue === 'Event' ? 'selected' : ''}>Event</option>`;
             
             availableCategories.forEach(cat => {
