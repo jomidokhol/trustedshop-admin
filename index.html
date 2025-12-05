@@ -370,6 +370,45 @@
             </section>
 
             <section id="settings" class="page">
+                <!-- NEW FOOTER SETTINGS CARD START -->
+                <div class="card">
+                    <h2>ফুটার ও যোগাযোগ সেটিংস</h2>
+                    <div class="input-group">
+                        <label for="contactAddress">ঠিকানা (Address)</label>
+                        <input type="text" id="contactAddress" placeholder="যেমন: Lalpur Road # 17, Natore, Rajshahi">
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="whatsappLink">WhatsApp লিংক</label>
+                            <input type="url" id="whatsappLink" placeholder="https://wa.me/...">
+                        </div>
+                        <div class="input-group">
+                            <label for="whatsappStatus">WhatsApp স্ট্যাটাস</label>
+                            <input type="text" id="whatsappStatus" placeholder="যেমন: Online / 10AM-10PM">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="telegramLink">Telegram লিংক</label>
+                            <input type="url" id="telegramLink" placeholder="https://t.me/...">
+                        </div>
+                        <div class="input-group">
+                            <label for="telegramStatus">Telegram স্ট্যাটাস</label>
+                            <input type="text" id="telegramStatus" placeholder="যেমন: Online / Offline">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="playStoreLink">অ্যাপ ডাউনলোড লিংক (Google Play)</label>
+                        <input type="url" id="playStoreLink" placeholder="https://play.google.com/store/apps/details?id=...">
+                    </div>
+                    
+                    <button class="btn" onclick="updateFooterSettings()">সেভ করুন</button>
+                </div>
+                <!-- NEW FOOTER SETTINGS CARD END -->
+
                 <div class="card">
                     <h2>ব্র্যান্ডিং</h2>
                     <div class="input-group">
@@ -482,7 +521,7 @@
                     <select id="inputType"> 
                         <option value="userid">Player ID (UID)</option> 
                         <option value="email">Email</option> 
-                        <option value="mobile_number">মোবাইল নম্বর</option>
+                        <option value="mobile_number">Mobail Number</option>
                     </select>
                 </div>
 
@@ -535,9 +574,9 @@
                 <span class="close-btn">&times;</span>
             </div>
             <form id="categoryForm">
-                <p style="color: var(--text-secondary); margin-bottom: 20px;">সর্বোচ্চ ৯টি ক্যাটাগরি তৈরি করুন। নামের পাশে থাকা বাটন দিয়ে গেম যোগ বা ক্যাটাগরি ডিলিট করুন।</p>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Upto 9</p>
                 <div id="categoryInputsContainer"></div>
-                <button type="submit" class="btn">ক্যাটাগরি সেভ করুন</button>
+                <button type="submit" class="btn">save</button>
             </form>
         </div>
     </div>
@@ -558,7 +597,7 @@
                     <input type="text" id="eventTitle" placeholder="Special Event">
                 </div>
                 <div class="input-group">
-                    <label for="eventEndDate">টাইমার শেষ হওয়ার তারিখ ও সময়</label>
+                    <label for="eventEndDate">শেষ হওয়ার তারিখ ও সময়</label>
                     <input type="datetime-local" id="eventEndDate">
                 </div>
                 <hr style="margin: 20px 0; border-color: var(--border-color);">
@@ -566,12 +605,12 @@
                     <label>ইভেন্ট গেমস</label>
                     <p style="color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">ইভেন্টে সর্বোচ্চ ২টি গেম যোগ করা যাবে।</p>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button type="button" class="btn" id="addNewEventGameBtn"><i class="fas fa-plus" style="margin-right: 8px;"></i>নতুন গেম যোগ করুন</button>
-                        <button type="button" class="btn btn-success" id="addExistingEventGameBtn"><i class="fas fa-list-ul" style="margin-right: 8px;"></i>বিদ্যমান গেম যোগ করুন</button>
-                        <button type="button" class="btn btn-danger" id="manageEventGamesBtn"><i class="fas fa-trash" style="margin-right: 8px;"></i>ইভেন্ট গেম রিমুভ করুন</button>
+                        <button type="button" class="btn" id="addNewEventGameBtn"><i class="fas fa-plus" style="margin-right: 8px;"></i>Add</button>
+                        <button type="button" class="btn btn-success" id="addExistingEventGameBtn"><i class="fas fa-list-ul" style="margin-right: 8px;"></i>Put</button>
+                        <button type="button" class="btn btn-danger" id="manageEventGamesBtn"><i class="fas fa-trash" style="margin-right: 8px;"></i>Remove</button>
                     </div>
                 </div>
-                <button type="submit" class="btn">সেটিংস সেভ করুন</button>
+                <button type="submit" class="btn">save</button>
             </form>
         </div>
     </div>
@@ -584,10 +623,10 @@
             </div>
             <form id="addGamesToCategoryForm">
                 <input type="hidden" id="targetCategoryName">
-                <p style="color: var(--text-secondary); margin-bottom: 20px;">যে গেমগুলো কোনো ক্যাটাগরিতে নেই, সেগুলোকে সিলেক্ট করে যোগ করুন।</p>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">chose...</p>
                 <div id="uncategorizedGamesList" style="max-height: 300px; overflow-y: auto; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
                 </div>
-                <button type="submit" class="btn" style="margin-top: 20px;">যোগ করুন</button>
+                <button type="submit" class="btn" style="margin-top: 20px;">Add</button>
             </form>
         </div>
     </div>
@@ -598,7 +637,7 @@
                 <h2 id="manageCategoryGamesModalTitle"></h2>
                 <span class="close-btn">&times;</span>
             </div>
-            <p style="color: var(--text-secondary); margin-bottom: 20px;">এই ক্যাটাগরি থেকে গেম বাদ দিতে 'Remove' বাটনে ক্লিক করুন।</p>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">seclet for Remove</p>
             <div id="gamesInCategoryList" style="max-height: 400px; overflow-y: auto;">
             </div>
         </div>
@@ -739,13 +778,16 @@
                 const balance = user.walletBalance ? user.walletBalance.toFixed(2) : '0.00';
                 const status = user.status || 'active';
                 const isBlocked = status === 'blocked';
-                
+                // Handle Google Users who might not have a photoURL or Name in Firestore yet
+                const displayPhoto = user.photoURL || 'https://i.ibb.co/74CkxSP/avatar.png';
+                const displayName = user.name || 'No Name';
+
                 tableHtml += `
                     <tr>
                         <td>
                             <div style="display: flex; align-items: center;">
-                                <img src="${user.photoURL || 'https://i.ibb.co/74CkxSP/avatar.png'}" alt="Avatar" class="user-avatar">
-                                ${user.name}
+                                <img src="${displayPhoto}" alt="Avatar" class="user-avatar">
+                                ${displayName}
                             </div>
                         </td>
                         <td>${user.email}</td>
@@ -1162,6 +1204,22 @@
         }
         
         async function loadSiteSettings() {
+            // Load Footer Settings (NEW)
+            const contactDoc = await db.collection('settings').doc('contact').get();
+            if (contactDoc.exists) {
+                const data = contactDoc.data();
+                document.getElementById('contactAddress').value = data.address || '';
+                document.getElementById('whatsappLink').value = data.whatsappLink || '';
+                document.getElementById('whatsappStatus').value = data.whatsappStatus || '';
+                document.getElementById('telegramLink').value = data.telegramLink || '';
+                document.getElementById('telegramStatus').value = data.telegramStatus || '';
+            }
+            const appDoc = await db.collection('settings').doc('app').get();
+            if (appDoc.exists) {
+                document.getElementById('playStoreLink').value = appDoc.data().playStoreLink || '';
+            }
+
+            // Existing Settings
             const brandingDoc = await db.collection('settings').doc('branding').get();
             if (brandingDoc.exists) {
                 const { appName, profileIconUrl } = brandingDoc.data();
@@ -1206,6 +1264,30 @@
             const onlineStatusDoc = await db.collection('settings').doc('onlineStatus').get();
             if (onlineStatusDoc.exists) {
                 document.getElementById('onlineStatusToggle').checked = onlineStatusDoc.data().isOnline;
+            }
+        }
+        
+        // NEW FUNCTION: Update Footer Settings
+        async function updateFooterSettings() {
+            const address = document.getElementById('contactAddress').value;
+            const whatsappLink = document.getElementById('whatsappLink').value;
+            const whatsappStatus = document.getElementById('whatsappStatus').value;
+            const telegramLink = document.getElementById('telegramLink').value;
+            const telegramStatus = document.getElementById('telegramStatus').value;
+            const playStoreLink = document.getElementById('playStoreLink').value;
+
+            try {
+                await db.collection('settings').doc('contact').set({
+                    address, whatsappLink, whatsappStatus, telegramLink, telegramStatus
+                }, { merge: true });
+
+                await db.collection('settings').doc('app').set({
+                    playStoreLink
+                }, { merge: true });
+
+                alert('ফুটার সেটিংস সফলভাবে আপডেট হয়েছে!');
+            } catch (error) {
+                alert('ত্রুটি: ' + error.message);
             }
         }
         
