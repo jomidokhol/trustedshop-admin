@@ -530,6 +530,11 @@
                     <textarea id="gameDescription" rows="4" placeholder="প্রোডাক্টের বিস্তারিত বা নিয়মাবলী..."></textarea>
                 </div>
 
+                <div class="input-group">
+                    <label for="tutorialLink">টিউটোরিয়াল লিংক (কিভাবে করব? বাটন)</label>
+                    <input type="url" id="tutorialLink" placeholder="https://youtube.com/watch?v=...">
+                </div>
+
                 <div class="input-group"> 
                     <label for="gameLogo">লোগো URL</label> 
                     <input type="text" id="gameLogo" onkeyup="updatePreview('gameLogo', 'logoPreview')"> 
@@ -1361,6 +1366,7 @@
             document.getElementById('badgeText').value = '';
             document.getElementById('inputType').value = 'userid';
             document.getElementById('gameDescription').value = '';
+            document.getElementById('tutorialLink').value = ''; /* Added Reset */
             
             document.getElementById('modalTitle').innerText = 'নতুন গেম যোগ করুন';
             packagesContainer.innerHTML = '';
@@ -1434,6 +1440,7 @@
             document.getElementById('badgeText').value = game.badgeText || '';
             document.getElementById('inputType').value = game.inputType || 'userid';
             document.getElementById('gameDescription').value = game.description || '';
+            document.getElementById('tutorialLink').value = game.tutorialLink || ''; /* Load Tutorial Link */
 
             document.getElementById('modalTitle').innerText = 'গেম এডিট করুন';
             packagesContainer.innerHTML = '';
@@ -1466,6 +1473,7 @@
                 badgeText: document.getElementById('badgeText').value,
                 inputType: document.getElementById('inputType').value,
                 description: document.getElementById('gameDescription').value,
+                tutorialLink: document.getElementById('tutorialLink').value, /* Save Tutorial Link */
                 logo: document.getElementById('gameLogo').value,
                 banner: document.getElementById('gameBanner').value,
                 packages: packages
