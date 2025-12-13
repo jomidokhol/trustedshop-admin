@@ -1,1891 +1,1612 @@
+<!-- START OF FILE admin.html -->
+
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="bn" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vercel Admin Panel</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Firebase Admin Panel</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --primary-color: #3B82F6;
-            --primary-hover: #2563EB;
-            --background-color: #F8FAFC;
-            --sidebar-bg: #FFFFFF;
-            --card-bg: #FFFFFF;
-            --text-primary: #1E293B;
-            --text-secondary: #64748B;
-            --border-color: #E2E8F0;
-            --success-color: #10B981;
-            --warning-color: #F59E0B;
-            --danger-color: #EF4444;
+            --primary-color: #4e73df;
             --sidebar-width: 260px;
-            --soft-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Source Sans Pro', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-primary);
-            font-size: 16px;
+            font-family: 'Poppins', 'Hind Siliguri', sans-serif;
+            background-color: var(--bs-body-bg);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            overflow-x: hidden;
+            margin: 0;
         }
 
-        .login-container { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: var(--background-color); }
-        .login-card { background: var(--card-bg); padding: 40px; border-radius: 12px; box-shadow: var(--soft-shadow); width: 100%; max-width: 400px; text-align: center; }
-        .login-card h2 { margin-bottom: 25px; font-size: 24px; color: var(--text-primary); }
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary); }
-        .input-group input, .input-group textarea, .input-group select {
-            width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px;
-            transition: border-color 0.2s, box-shadow 0.2s; font-family: 'Source Sans Pro', sans-serif;
+        /* --- Login Screen Styling --- */
+        .login-wrapper {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000;
+            transition: all 0.5s ease;
         }
-        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
-            outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        .login-card {
+            width: 100%; max-width: 400px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: slideUp 0.5s ease;
         }
-        .error-message { color: var(--danger-color); font-size: 14px; margin-top: 5px; display: block; }
 
-        .btn {
-            display: inline-block; background-color: var(--primary-color); color: white; border: none;
-            padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; text-align: center; transition: background-color 0.3s;
+        /* --- Layout Structure --- */
+        .d-flex-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+            align-items: stretch;
+            position: relative;
         }
-        .btn:hover { background-color: var(--primary-hover); }
-        .btn-full { width: 100%; padding: 14px; }
-        .btn-success { background-color: var(--success-color); }
-        .btn-success:hover { background-color: #0da271; }
-        .btn-danger { background-color: var(--danger-color); }
-        .btn-danger:hover { background-color: #dc2626; }
 
-        .admin-wrapper { display: none; }
-        .sidebar {
-            position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100%;
-            background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color);
-            padding: 20px; z-index: 1001; transition: transform 0.3s ease-in-out;
+        /* --- Sidebar --- */
+        #sidebar {
+            min-width: var(--sidebar-width);
+            max-width: var(--sidebar-width);
+            background: #2c3e50;
+            color: #fff;
+            height: 100vh;
+            transition: all var(--transition-speed);
+            z-index: 1050;
+            position: fixed;
+            top: 0; left: 0;
+            overflow-y: auto;
+            margin-left: calc(var(--sidebar-width) * -1); /* Hidden initially */
         }
-        .sidebar-header { text-align: center; margin-bottom: 40px; font-size: 28px; font-weight: 700; color: var(--primary-color); }
-        .sidebar-nav ul { list-style: none; }
-        .sidebar-nav li a {
-            display: flex; align-items: center; color: var(--text-secondary); text-decoration: none;
-            padding: 14px; border-radius: 8px; margin-bottom: 8px; transition: background-color 0.3s, color 0.3s; font-weight: 600;
-        }
-        .sidebar-nav li a:hover { background-color: var(--background-color); color: var(--text-primary); }
-        .sidebar-nav li a.active { background-color: var(--primary-color); color: white; }
-        .sidebar-nav li a i { margin-right: 15px; width: 20px; font-size: 18px; }
-        #logoutBtn { position: absolute; bottom: 20px; width: calc(100% - 40px); }
-
-        .main-content { padding: 20px; transition: margin-left 0.3s ease-in-out; }
-        .top-header {
-            display: flex; justify-content: space-between; align-items: center; background-color: var(--card-bg);
-            padding: 15px 25px; border-radius: 12px; box-shadow: var(--soft-shadow); margin-bottom: 25px;
-        }
-        .top-header h1 { font-size: 22px; }
-        .menu-toggle { font-size: 24px; cursor: pointer; display: none; color: var(--text-secondary); }
-
-        .page { display: none; }
-        .page.active { display: block; }
         
-        .card { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: var(--soft-shadow); margin-bottom: 20px; }
-        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-        .stat-card { display: flex; align-items: center; background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: var(--soft-shadow); }
-        .stat-card .icon { font-size: 24px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 20px; }
-        .stat-card .info h3 { font-size: 28px; font-weight: 700; }
-        .stat-card .info p { font-size: 16px; color: var(--text-secondary); }
-        .stat-card.users .icon { color: #3B82F6; background-color: #DBEAFE; }
-        .stat-card.orders .icon { color: #8B5CF6; background-color: #EDE9FE; }
-        .stat-card.revenue .icon { color: var(--success-color); background-color: #D1FAE5; }
-        .stat-card.pending .icon { color: var(--warning-color); background-color: #FEF3C7; }
-        .stat-card.requests .icon { color: #EC4899; background-color: #FCE7F3; }
+        #sidebar.active {
+            margin-left: 0; /* Show sidebar */
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.3rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #sidebar ul.components {
+            padding: 20px 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        #sidebar ul li a {
+            padding: 15px 25px;
+            font-size: 0.95rem;
+            display: block;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        #sidebar ul li a:hover, #sidebar ul li a.active-link {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+            border-left: 4px solid var(--primary-color);
+            padding-left: 30px;
+        }
+
+        /* --- Content Area --- */
+        #content {
+            width: 100%;
+            margin-left: 0;
+            transition: all var(--transition-speed);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); 
+            z-index: 1040;
+            backdrop-filter: blur(2px);
+        }
+        .sidebar-overlay.show { display: block; }
+
+        /* --- Top Navigation Bar --- */
+        .navbar {
+            padding: 15px 25px;
+            background: var(--bs-body-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom: 1px solid var(--bs-border-color);
+        }
+
+        .main-content {
+            padding: 30px;
+            flex: 1;
+        }
+
+        /* --- Cards & Tables --- */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+            transition: transform 0.2s;
+            margin-bottom: 24px;
+        }
         
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 16px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
-        th { background-color: var(--background-color); color: var(--text-secondary); font-size: 14px; text-transform: uppercase; font-weight: 600; }
-        td img.user-avatar, td img.logo-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 10px; }
-        td img.logo-avatar { border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; }
-        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; color: white; }
-        .status-Pending { background-color: var(--warning-color); }
-        .status-active, .status-Completed, .status-Approved { background-color: var(--success-color); }
-        .status-blocked, .status-Canceled, .status-Rejected { background-color: var(--danger-color); }
-        .status-unavailable { background-color: var(--text-secondary); }
-        .action-btn { background: none; border: none; font-size: 18px; cursor: pointer; margin: 0 5px; color: var(--text-secondary); transition: color 0.2s; }
-        .action-btn.edit:hover { color: var(--primary-color); }
-        .action-btn.delete:hover { color: var(--danger-color); }
-        .action-btn.approve:hover { color: var(--success-color); }
-        .action-btn.reject:hover { color: var(--danger-color); }
-        .action-btn.toggle-status:hover { color: var(--warning-color); }
+        .stat-card { border-left: 5px solid; }
 
-        .copy-btn-inline { background-color: transparent; border: none; color: var(--text-secondary); cursor: pointer; margin-left: 8px; font-size: 14px; }
-        .copy-btn-inline:hover { color: var(--primary-color); }
-        .copy-wrapper { display: flex; align-items: center; }
+        /* --- Animations --- */
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
 
-        .modal { display: none; position: fixed; z-index: 1002; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 30px; border: 1px solid #888; width: 90%; max-width: 650px; border-radius: 12px; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .modal-header h2 { font-size: 22px; }
-        .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .form-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-
-        .preview-img { width: 80px; height: 80px; object-fit: contain; border: 1px solid var(--border-color); border-radius: 8px; margin-top: 10px; display: none; }
-
-        .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--success-color); }
-        input:checked + .slider:before { transform: translateX(26px); }
-
-        .chat-container { display: flex; height: 70vh; }
-        .chat-user-list { width: 300px; border-right: 1px solid var(--border-color); overflow-y: auto; }
-        .chat-user { padding: 15px; cursor: pointer; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .chat-user:hover, .chat-user.active { background-color: var(--background-color); }
-        .chat-user p { font-weight: 600; }
-        .chat-user span { font-size: 12px; color: var(--text-secondary); }
-        .chat-window { flex: 1; display: flex; flex-direction: column; }
-        .chat-header { padding: 15px; border-bottom: 1px solid var(--border-color); font-weight: 700; }
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .message { padding: 10px 15px; border-radius: 18px; max-width: 70%; word-wrap: break-word; }
-        .message a { color: inherit; text-decoration: underline; }
-        .message-wrapper { display: flex; align-items: center; gap: 8px; }
-        .message-wrapper.user { justify-content: flex-start; }
-        .message-wrapper.admin { justify-content: flex-end; flex-direction: row-reverse; }
-        .message.user { background-color: #E2E8F0; }
-        .message.admin { background-color: var(--primary-color); color: white; }
-        .delete-msg-btn { color: var(--text-secondary); cursor: pointer; opacity: 0; transition: opacity 0.2s; }
-        .message-wrapper:hover .delete-msg-btn { opacity: 1; }
-        .delete-msg-btn:hover { color: var(--danger-color); }
-        .chat-reply { display: flex; padding: 15px; border-top: 1px solid var(--border-color); }
-        #chatReplyInput { flex: 1; border-radius: 20px; padding: 10px 15px; border: 1px solid var(--border-color); }
-        #chatReplyInput:focus { outline: none; border-color: var(--primary-color); }
-        #chatReplyBtn { margin-left: 10px; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
-        .page-actions { display: flex; justify-content: flex-end; gap: 15px; margin-bottom: 20px; }
+        /* Loading Spinner */
+        #loadingSpinner {
+            display: none;
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 3000;
+        }
 
-        .category-management-entry {
+        /* Small item styling for list */
+        .list-item-img {
+            width: 40px; height: 40px; object-fit: cover; border-radius: 50%;
+        }
+        
+        /* Action buttons in tables */
+        .action-btn {
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        /* Contact List Slider Styles */
+        .cl-slider-container {
+            width: 500%; /* 5 steps */
+            display: flex;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            height: 100%;
+        }
+        .cl-slide {
+            width: 20%; /* 100% / 5 */
+            flex-shrink: 0;
+            padding: 10px;
+            height: 100%;
+            overflow-y: auto;
+            position: relative;
+        }
+        .cl-item {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--bs-border-color);
+        }
+        .cl-item:hover {
+            background-color: var(--bs-tertiary-bg);
+            transform: translateX(5px);
+            border-color: var(--primary-color);
+        }
+        
+        /* Floating Action Button */
+        .fab-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            margin-bottom: 15px;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.2s;
         }
-        .category-management-entry input { flex-grow: 1; }
-        .category-management-entry .btn { padding: 8px 12px; font-size: 14px; }
-        #uncategorizedGamesList .game-item, #gamesInCategoryList .game-item { 
-            display: flex; 
-            align-items: center; 
-            margin-bottom: 10px; 
-            justify-content: space-between;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        #uncategorizedGamesList .game-item:last-child, #gamesInCategoryList .game-item:last-child {
-            border-bottom: none;
-        }
-        #uncategorizedGamesList .game-item input { margin-right: 10px; }
-
-        @media (min-width: 1024px) {
-            .main-content { margin-left: var(--sidebar-width); }
-            .form-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width: 1023px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.active { transform: translateX(0); }
-            .menu-toggle { display: block; }
-            .chat-container { flex-direction: column; height: auto; }
-            .chat-user-list { width: 100%; height: 200px; border-right: none; border-bottom: 1px solid var(--border-color); }
+        .fab-btn:hover {
+            transform: scale(1.1);
+            background-color: #375ac7;
         }
     </style>
 </head>
 <body>
 
-    <div class="login-container" id="loginContainer">
-        <div class="login-card">
-            <h2>অ্যাডমিন প্যানেল</h2>
-            <div class="input-group">
-                <label for="adminEmail">ইমেইল</label>
-                <input type="email" id="adminEmail" placeholder="admin@example.com">
-            </div>
-            <div class="input-group">
-                <label for="adminPassword">পাসওয়ার্ড</label>
-                <input type="password" id="adminPassword">
-            </div>
-            <button class="btn btn-full" onclick="handleAdminLogin()">লগইন করুন</button>
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
         </div>
     </div>
 
-    <div class="admin-wrapper" id="adminWrapper">
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header" id="sidebarHeader">GameStore</div>
-            <nav class="sidebar-nav">
-                <ul>
-                    <li><a href="#dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i> ড্যাশবোর্ড</a></li>
-                    <li><a href="#users" class="nav-link"><i class="fas fa-users"></i> ব্যবহারকারী</a></li>
-                    <li><a href="#games" class="nav-link"><i class="fas fa-gamepad"></i> গেমসমূহ</a></li>
-                    <li><a href="#orders" class="nav-link"><i class="fas fa-receipt"></i> অর্ডারসমূহ</a></li>
-                    <li><a href="#requests" class="nav-link"><i class="fas fa-money-bill-wave"></i> মানি রিকোয়েস্ট</a></li>
-                    <li><a href="#paymentMethods" class="nav-link"><i class="fas fa-credit-card"></i> পেমেন্ট মেথড</a></li>
-                    <li><a href="#supportChats" class="nav-link"><i class="fas fa-headset"></i> সাপোর্ট চ্যাট</a></li>
-                    <li><a href="#popup" class="nav-link"><i class="fas fa-window-maximize"></i> পপ-আপ</a></li>
-                    <li><a href="#settings" class="nav-link"><i class="fas fa-cog"></i> সাইট সেটিংস</a></li>
-                    <li><a href="#" id="logoutBtn" class="nav-link"><i class="fas fa-sign-out-alt"></i> লগ আউট</a></li>
-                </ul>
+    <!-- 1. Login Screen -->
+    <div id="loginSection" class="login-wrapper">
+        <div class="card login-card p-5 bg-white text-dark">
+            <div class="text-center mb-4">
+                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 24px;">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <h3>এডমিন প্যানেল</h3>
+                <p class="text-muted small">এডমিন নিরাপদ লগইন</p>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="adminEmail" placeholder="name@example.com">
+                <label for="adminEmail">ইমেইল এড্রেস</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="adminPass" placeholder="password">
+                <label for="adminPass">পাসওয়ার্ড</label>
+            </div>
+            <button id="btnLogin" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">প্রবেশ করুন</button>
+            <small class="text-danger text-center mt-3 d-block" id="loginError"></small>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="sidebar-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- 2. Main Application Wrapper -->
+    <div class="d-flex-wrapper d-none" id="mainApp">
+        
+        <!-- SIDEBAR MENU -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-rocket me-2"></i> সাইট মেনু
+            </div>
+            <ul class="components">
+                <li><a href="#" onclick="showPage('dashboard', this)" class="active-link"><i class="fas fa-home me-3"></i>ড্যাশবোর্ড</a></li>
+                <li><a href="#" onclick="showPage('general', this)"><i class="fas fa-sliders-h me-3"></i>হোম কনফিগার</a></li>
+                <li><a href="#" onclick="showPage('userlist', this)"><i class="fas fa-users me-3"></i>ইউজার লিস্ট</a></li>
+                <li><a href="#" onclick="showPage('contactlist', this)"><i class="fas fa-address-book me-3"></i>কন্টাক্ট লিস্ট</a></li>
+                <li><a href="#" onclick="showPage('about', this)"><i class="fas fa-info-circle me-3"></i>আমাদের সম্পর্কে</a></li>
+                <li><a href="#" onclick="showPage('contact', this)"><i class="fas fa-address-card me-3"></i>যোগাযোগ তথ্য</a></li>
+                <li><a href="#" onclick="showPage('updates', this)"><i class="fas fa-bullhorn me-3"></i>নিউজ আপডেট</a></li>
+                <li><a href="#" onclick="showPage('settings', this)"><i class="fas fa-cog me-3"></i>সেটিংস</a></li>
+            </ul>
+            <div class="text-center mt-5">
+                <button id="btnLogout" class="btn btn-danger btn-sm w-75 rounded-pill"><i class="fas fa-sign-out-alt me-2"></i>লগ আউট</button>
+            </div>
+        </nav>
+
+        <!-- CONTENT AREA -->
+        <div id="content">
+            
+            <!-- TOP MENU BAR -->
+            <nav class="navbar navbar-expand-lg sticky-top">
+                <div class="container-fluid">
+                    <!-- Toggle Button (Hamburger) -->
+                    <button type="button" id="sidebarCollapse" class="btn btn-primary shadow-sm" onclick="toggleSidebar()">
+                        <i class="fas fa-bars me-1"></i> <span class="d-none d-sm-inline">মেনু</span>
+                    </button>
+                    
+                    <div class="d-flex align-items-center ms-auto">
+                        <button class="btn btn-outline-secondary border-0 me-3" onclick="toggleTheme()" id="themeBtn" title="Change Theme">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-body" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="" width="40" height="40" class="rounded-circle me-2 border">
+                                <span class="fw-bold small d-none d-sm-inline" id="displayUsername">Admin</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                <li><a class="dropdown-item" href="#" onclick="showPage('settings')"><i class="fas fa-user me-2"></i>প্রোফাইল</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </nav>
-        </aside>
 
-        <main class="main-content">
-            <header class="top-header">
-                <i class="fas fa-bars menu-toggle" id="menuToggle"></i>
-                <h1 id="headerTitle">ড্যাশবোর্ড</h1>
-            </header>
-
-            <section id="dashboard" class="page active">
-                <div class="stat-grid">
-                     <div class="stat-card users"> <div class="icon"><i class="fas fa-users"></i></div> <div class="info"><h3 id="totalUsers">0</h3><p>মোট ব্যবহারকারী</p></div> </div>
-                     <div class="stat-card orders"> <div class="icon"><i class="fas fa-receipt"></i></div> <div class="info"><h3 id="totalOrders">0</h3><p>মোট অর্ডার</p></div> </div>
-                     <div class="stat-card revenue"> <div class="icon"><i class="fas fa-dollar-sign"></i></div> <div class="info"><h3 id="totalRevenue">৳ 0</h3><p>মোট আয়</p></div> </div>
-                     <div class="stat-card pending"> <div class="icon"><i class="fas fa-hourglass-half"></i></div> <div class="info"><h3 id="pendingOrders">0</h3><p>পেন্ডিং অর্ডার</p></div> </div>
-                     <div class="stat-card requests"> <div class="icon"><i class="fas fa-money-bill-wave"></i></div> <div class="info"><h3 id="pendingRequests">0</h3><p>পেন্ডিং রিকোয়েস্ট</p></div> </div>
-                </div>
-            </section>
-
-            <section id="users" class="page">
-                <div class="card">
-                   <div class="table-container">
-                       <table>
-                           <thead><tr><th>নাম</th><th>ইমেইল</th><th>ওয়ালেট ব্যালেন্স</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
-                           <tbody id="usersTableBody"></tbody>
-                       </table>
-                   </div>
-               </div>
-            </section>
-            
-            <section id="games" class="page">
-                <div class="page-actions">
-                    <button class="btn" id="manageEventBtn">ইভেন্ট ম্যানেজ করুন</button>
-                    <button class="btn" id="manageCategoriesBtn">ক্যাটাগরি ম্যানেজ করুন</button>
-                    <button class="btn btn-success" id="addGameBtn"><i class="fas fa-plus" style="margin-right: 8px;"></i>নতুন গেম যোগ করুন</button>
-                </div>
-                <div class="card">
-                    <div class="table-container">
-                        <table>
-                            <thead><tr><th>গেম</th><th>ক্যাটাগরি</th><th>স্ট্যাটাস</th><th>প্যাকেজ সংখ্যা</th><th>অ্যাকশন</th></tr></thead>
-                            <tbody id="gamesTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-            
-            <section id="orders" class="page">
-                 <div class="card">
-                    <div class="table-container">
-                        <table>
-                            <thead><tr><th>অর্ডার তারিখ</th><th>ব্যবহারকারীর ইমেইল</th><th>গেম</th><th>প্লেয়ার আইডি</th><th>মূল্য</th><th>ব্যবহারকারীর নম্বর</th><th>ট্রানজেকশন আইডি</th><th>UNIPIN</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
-                            <tbody id="ordersTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-            
-            <section id="requests" class="page">
-                <div class="card">
-                    <div class="table-container">
-                        <table>
-                            <thead><tr><th>তারিখ</th><th>ব্যবহারকারীর ইমেইল</th><th>অ্যামাউন্ট</th><th>পেমেন্ট মেথড</th><th>ব্যবহারকারীর নম্বর</th><th>ট্রানজেকশন আইডি</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
-                            <tbody id="requestsTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-             <section id="paymentMethods" class="page">
-                <div class="page-actions">
-                    <button class="btn" id="addPaymentMethodBtn"><i class="fas fa-plus" style="margin-right: 8px;"></i>নতুন মেথড যোগ করুন</button>
-                </div>
-                <div class="card">
-                    <div class="table-container">
-                        <table>
-                            <thead><tr><th>নাম</th><th>নম্বর</th><th>লোগো</th><th>অ্যাকশন</th></tr></thead>
-                            <tbody id="paymentMethodsTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <section id="supportChats" class="page">
-                <div class="card">
-                    <div class="chat-container">
-                        <div class="chat-user-list" id="chatUserList">
-                            <p style="padding: 15px; text-align: center; color: var(--text-secondary);">লোড হচ্ছে...</p>
+            <!-- Main Dynamic Content -->
+            <div class="main-content">
+                
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="page-section fade-in">
+                    <h4 class="mb-4 text-muted border-bottom pb-2">ড্যাশবোর্ড ওভারভিউ</h4>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card stat-card p-4 border-primary bg-body-tertiary">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted text-uppercase mb-2">মোট ইউজার</h6>
+                                        <h2 class="mb-0 fw-bold" id="totalUsersCount">0</h2>
+                                    </div>
+                                    <div class="fs-1 text-primary opacity-25"><i class="fas fa-users"></i></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="chat-window" id="chatWindow">
-                            <div class="chat-header" id="chatHeader">সিলেক্ট করুন</div>
-                            <div class="chat-messages" id="chatMessages"></div>
-                            <div class="chat-reply" id="chatReplyContainer" style="display: none;">
-                                <input type="text" id="chatReplyInput" placeholder="উত্তর দিন...">
-                                <button class="btn" id="chatReplyBtn">পাঠান</button>
+                        <div class="col-md-4">
+                            <div class="card stat-card p-4 border-success bg-body-tertiary">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted text-uppercase mb-2">সর্বমোট নিউজ</h6>
+                                        <h2 class="mb-0 fw-bold" id="totalNewsCount">0</h2>
+                                    </div>
+                                    <div class="fs-1 text-success opacity-25"><i class="fas fa-newspaper"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card stat-card p-4 border-warning bg-body-tertiary">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted text-uppercase mb-2">টিম মেম্বার</h6>
+                                        <h2 class="mb-0 fw-bold" id="totalTeamCount">0</h2>
+                                    </div>
+                                    <div class="fs-1 text-warning opacity-25"><i class="fas fa-user-tie"></i></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <section id="popup" class="page">
-                <div class="card">
-                    <h2>পপ-আপ ম্যানেজমেন্ট</h2>
-                     <div class="input-group" style="display: flex; align-items: center; justify-content: space-between;">
-                         <label for="popupStatusToggle" style="margin: 0;">পপ-আপ দেখান</label>
-                        <label class="switch">
-                            <input type="checkbox" id="popupStatusToggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <hr style="margin: 20px 0; border-color: var(--border-color);">
-                    <div class="input-group">
-                        <label for="popupTitleInput">টাইটেল</label>
-                        <input type="text" id="popupTitleInput" placeholder="বিশেষ ঘোষণা">
-                    </div>
-                    <div class="input-group">
-                        <label for="popupMessageInput">মেসেজ</label>
-                        <textarea id="popupMessageInput" rows="4" placeholder="এখানে লিখুন..."></textarea>
-                    </div>
-                    <div class="input-group">
-                        <label for="popupButtonTextInput">বাটন টেক্সট</label>
-                        <input type="text" id="popupButtonTextInput" placeholder="যেমন: এখানে ট্যাপ করুন">
-                    </div>
-                    <div class="input-group">
-                        <label for="popupButtonLinkInput">বাটন লিংক</label>
-                        <input type="url" id="popupButtonLinkInput" placeholder="https://example.com">
-                        <small style="color: var(--text-secondary);">লিংক ফাঁকা রাখলে বাটনটি দেখাবে না।</small>
-                    </div>
-                    <div class="input-group">
-                        <label for="popupImageUrlInput">ইমেজ URL</label>
-                        <input type="url" id="popupImageUrlInput" placeholder="https://example.com/image.png">
-                    </div>
-                    <button class="btn" onclick="updatePopup()">আপডেট করুন</button>
-                </div>
-            </section>
+                <!-- General Settings Section -->
+                <div id="general" class="page-section fade-in d-none">
+                    <div class="card p-4">
+                        <h5 class="card-title mb-4 border-bottom pb-2">হোম পেজ ও সাধারণ সেটিংস</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">সাইট নাম (Site Name)</label>
+                                <input type="text" class="form-control" id="siteName">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">সাইট লোগো URL</label>
+                                <input type="text" class="form-control" id="siteLogoUrl">
+                            </div>
+                            
+                            <h6 class="mt-4 text-muted">স্লাইডার ব্যানার</h6>
+                            <div class="col-md-4">
+                                <label class="form-label">ব্যানার ১ URL</label>
+                                <input type="text" class="form-control" id="banner1">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">ব্যানার ২ URL</label>
+                                <input type="text" class="form-control" id="banner2">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">ব্যানার ৩ URL</label>
+                                <input type="text" class="form-control" id="banner3">
+                            </div>
 
-            <section id="settings" class="page">
-                <!-- NEW FOOTER SETTINGS CARD START -->
-                <div class="card">
-                    <h2>ফুটার ও যোগাযোগ সেটিংস</h2>
-                    <div class="input-group">
-                        <label for="contactAddress">ঠিকানা (Address)</label>
-                        <input type="text" id="contactAddress" placeholder="যেমন: Lalpur Road # 17, Natore, Rajshahi">
-                    </div>
-                    
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label for="whatsappLink">WhatsApp লিংক</label>
-                            <input type="url" id="whatsappLink" placeholder="https://wa.me/...">
-                        </div>
-                        <div class="input-group">
-                            <label for="whatsappStatus">WhatsApp স্ট্যাটাস</label>
-                            <input type="text" id="whatsappStatus" placeholder="যেমন: Online / 10AM-10PM">
+                            <h6 class="mt-4 text-muted">ব্রেকিং নিউজ টিকার</h6>
+                            <div class="col-12">
+                                <label class="form-label">সংবাদসমূহ (কমা ',' দিয়ে আলাদা করুন)</label>
+                                <textarea class="form-control" id="newsTickerInput" rows="3" placeholder="রক্তদাতারা যোগ দিচ্ছেন..., জরুরি রক্তের প্রয়োজন..."></textarea>
+                            </div>
+
+                            <button id="btnSaveGeneral" class="btn btn-primary mt-3 w-auto ms-auto">সেভ করুন</button>
                         </div>
                     </div>
+                </div>
 
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label for="telegramLink">Telegram লিংক</label>
-                            <input type="url" id="telegramLink" placeholder="https://t.me/...">
+                <!-- User List Section -->
+                <div id="userlist" class="page-section fade-in d-none">
+                    <div class="card p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                            <h5 class="mb-0">রেজিস্টার্ড ইউজার (Firestore)</h5>
+                            <button id="btnRefreshUsers" class="btn btn-sm btn-outline-primary"><i class="fas fa-sync"></i> রিফ্রেশ</button>
                         </div>
-                        <div class="input-group">
-                            <label for="telegramStatus">Telegram স্ট্যাটাস</label>
-                            <input type="text" id="telegramStatus" placeholder="যেমন: Online / Offline">
+                        
+                        <!-- Search Filter -->
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-body-tertiary"><i class="fas fa-search"></i></span>
+                                <input type="text" id="userSearchInput" class="form-control" placeholder="ইমেইল অথবা মোবাইল নম্বর দিয়ে খুঁজুন...">
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="input-group">
-                        <label for="playStoreLink">অ্যাপ ডাউনলোড লিংক (Google Play)</label>
-                        <input type="url" id="playStoreLink" placeholder="https://play.google.com/store/apps/details?id=...">
-                    </div>
-                    
-                    <button class="btn" onclick="updateFooterSettings()">সেভ করুন</button>
-                </div>
-                <!-- NEW FOOTER SETTINGS CARD END -->
-
-                <div class="card">
-                    <h2>ব্র্যান্ডিং</h2>
-                    <div class="input-group">
-                        <label for="appName">সাইটের নাম</label>
-                        <input type="text" id="appName" placeholder="GameStore">
-                    </div>
-                    <div class="input-group">
-                        <label for="profileIconUrl">সাইটের লোগো URL</label>
-                        <input type="text" id="profileIconUrl" placeholder="https://example.com/avatar.png" onkeyup="updatePreview('profileIconUrl', 'profileIconPreview')">
-                        <img id="profileIconPreview" class="preview-img" src="" alt="Profile Icon Preview">
-                    </div>
-                    <button class="btn" onclick="updateBranding()">সেভ করুন</button>
-                </div>
-
-                <div class="card">
-                    <h2>নোটিশ বোর্ড</h2>
-                    <div class="input-group">
-                        <label for="marqueeText">টেক্সট</label>
-                        <textarea id="marqueeText" rows="3" placeholder="যেমন: স্বাগতম"></textarea>
-                    </div>
-                    <button class="btn" onclick="updateMarquee()">সেভ করুন</button>
-                </div>
-
-                <div class="card">
-                    <h2>টার্মস অ্যান্ড কন্ডিশনস</h2>
-                    <div class="input-group">
-                        <label for="termsTitle">টাইটেল</label>
-                        <input type="text" id="termsTitle" placeholder="Terms & Conditions">
-                    </div>
-                    <div class="input-group">
-                        <label for="termsText">টেক্সট</label>
-                        <textarea id="termsText" rows="5" placeholder="আপনার নিয়মাবলী এখানে লিখুন..."></textarea>
-                    </div>
-                    <button class="btn" onclick="updateTerms()">সেভ করুন</button>
-                </div>
-
-                <div class="card">
-                    <h2>ডিফল্ট প্রোফাইল লোগো</h2>
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label for="maleAvatarUrl">ছেলেদের ডিফল্ট লোগো URL</label>
-                            <input type="text" id="maleAvatarUrl" placeholder="https://example.com/male.png" onkeyup="updatePreview('maleAvatarUrl', 'maleAvatarPreview')">
-                            <img id="maleAvatarPreview" class="preview-img" src="" alt="Male Avatar Preview">
-                        </div>
-                        <div class="input-group">
-                            <label for="femaleAvatarUrl">মেয়েদের ডিফল্ট লোগো URL</label>
-                            <input type="text" id="femaleAvatarUrl" placeholder="https://example.com/female.png" onkeyup="updatePreview('femaleAvatarUrl', 'femaleAvatarPreview')">
-                            <img id="femaleAvatarPreview" class="preview-img" src="" alt="Female Avatar Preview">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ইমেইল / নাম</th>
+                                        <th>ফোন</th>
+                                        <th>UID</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- Data will be loaded here from Firebase -->
+                                </tbody>
+                            </table>
+                            <div id="noUsersMsg" class="text-center text-muted py-3 d-none">কোন ইউজার পাওয়া যায়নি</div>
                         </div>
                     </div>
-                    <button class="btn" onclick="updateDefaultAvatars()">সেভ করুন</button>
                 </div>
 
-                <div class="card">
-                    <h2>হোমপেজ স্লাইডার (সর্বোচ্চ ৫টি)</h2>
-                    <div id="sliderInputsContainer"></div>
-                    <button class="btn" onclick="updateSlider()" style="margin-top: 20px;">স্লাইডার সেভ করুন</button>
-                </div>
-                 <div class="card">
-                    <h2>অনলাইন স্ট্যাটাস</h2>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span>অফলাইন</span>
-                        <label class="switch">
-                            <input type="checkbox" id="onlineStatusToggle">
-                            <span class="slider"></span>
-                        </label>
-                        <span>অনলাইন</span>
+                <!-- Contact List Section (New) -->
+                <div id="contactlist" class="page-section fade-in d-none">
+                    <div class="card p-0 overflow-hidden" style="height: 600px;">
+                        <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <button id="clBackBtn" class="btn btn-sm btn-outline-secondary me-2 d-none" onclick="prevContactStep()">
+                                    <i class="fas fa-arrow-left"></i>
+                                </button>
+                                <h5 class="m-0" id="clTitle">ক্যাটাগরি নির্বাচন করুন</h5>
+                            </div>
+                            <!-- Step Badge Removed as per request -->
+                        </div>
+                        
+                        <div class="cl-slider-container" id="clSlider">
+                            <!-- Step 1: Categories -->
+                            <div class="cl-slide" id="clStep1">
+                                <h6 class="text-muted mb-3">সেবা ক্যাটাগরি</h6>
+                                <div class="list-group list-group-flush" id="clCategoryList">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Divisions -->
+                            <div class="cl-slide" id="clStep2">
+                                <h6 class="text-muted mb-3">বিভাগ নির্বাচন করুন</h6>
+                                <div class="list-group list-group-flush" id="clDivisionList">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Districts -->
+                            <div class="cl-slide" id="clStep3">
+                                <h6 class="text-muted mb-3">জেলা নির্বাচন করুন</h6>
+                                <div class="list-group list-group-flush" id="clDistrictList">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Upazilas -->
+                            <div class="cl-slide" id="clStep4">
+                                <h6 class="text-muted mb-3">উপজেলা নির্বাচন করুন</h6>
+                                <div class="list-group list-group-flush" id="clUpazilaList">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Step 5: Result / Add Contact -->
+                            <div class="cl-slide" id="clStep5">
+                                <div class="alert alert-info py-2 small">
+                                    <i class="fas fa-map-marker-alt me-1"></i> <span id="clSelectedBreadcrumb" class="fw-bold"></span>
+                                </div>
+                                
+                                <div id="clLoading" class="text-center py-4 d-none">
+                                    <div class="spinner-border text-primary spinner-border-sm"></div> লোড হচ্ছে...
+                                </div>
+
+                                <div class="list-group" id="finalContactList" style="padding-bottom: 70px;">
+                                    <!-- Populated by DB -->
+                                </div>
+
+                                <!-- Floating Add Button -->
+                                <button class="fab-btn" onclick="openContactModal()" title="নতুন কন্টাক্ট যুক্ত করুন">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </section>
-        </main>
-    </div>
 
-    <div id="gameModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">নতুন গেম</h2>
-                <span class="close-btn">&times;</span>
-            </div>
-            <form id="gameForm">
-                <input type="hidden" id="gameId">
-                <div class="form-grid">
-                    <div class="input-group"> 
-                        <label for="gameName">গেমের নাম</label> 
-                        <input type="text" id="gameName"> 
-                        <small class="error-message" id="gameNameError"></small>
-                    </div>
-                    <div class="input-group"> 
-                        <label for="gameStatus">স্ট্যাটাস</label> 
-                        <select id="gameStatus"> 
-                            <option value="active">Active</option> 
-                            <option value="inactive">Inactive</option> 
-                            <option value="unavailable">আন এভেইলেবল</option>
-                        </select> 
-                    </div>
-                </div>
-                
-                <div class="input-group" id="gameCategoryGroup" style="display: none;">
-                    <label for="gameCategory">ক্যাটাগরি</label>
-                    <select id="gameCategory"></select>
-                </div>
-                
-                <div class="form-grid">
-                    <div class="input-group"> <label for="gameRank">গেম র‍্যাংকিং (ক্যাটাগরির ভেতরে)</label> <input type="number" id="gameRank" placeholder="1, 2, 3..."> </div>
-                    <div class="input-group"> <label for="badgeText">ব্যাজ টেক্সট</label> <input type="text" id="badgeText" placeholder="HOT / Emoji"> </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="inputType">ইনপুট টাইপ</label>
-                    <select id="inputType"> 
-                        <option value="userid">Player ID (UID)</option> 
-                        <option value="email">Email</option> 
-                        <option value="mobile_number">Mobail Number</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label for="gameDescription">বিস্তারিত নিয়মাবলী</label>
-                    <textarea id="gameDescription" rows="4" placeholder="প্রোডাক্টের বিস্তারিত বা নিয়মাবলী..."></textarea>
-                </div>
-
-                <div class="input-group">
-                    <label for="tutorialLink">টিউটোরিয়াল লিংক (কিভাবে করব? বাটন)</label>
-                    <input type="url" id="tutorialLink" placeholder="https://youtube.com/watch?v=...">
-                </div>
-
-                <div class="input-group"> 
-                    <label for="gameLogo">লোগো URL</label> 
-                    <input type="text" id="gameLogo" onkeyup="updatePreview('gameLogo', 'logoPreview')"> 
-                    <small class="error-message" id="gameLogoError"></small>
-                    <img id="logoPreview" class="preview-img" src="" alt="Logo Preview">
-                </div>
-                <div class="input-group"> 
-                    <label for="gameBanner">ব্যানার URL</label> 
-                    <input type="text" id="gameBanner">
-                    <small class="error-message" id="gameBannerError"></small>
-                </div>
-                <hr style="margin: 25px 0; border: none; border-top: 1px solid var(--border-color);">
-                <h3>টপ-আপ প্যাকেজ</h3>
-                <div id="packagesContainer" style="margin-top: 15px;"></div>
-                <button type="button" class="btn" id="addPackageBtn" style="margin-top: 10px; background-color: var(--success-color);"><i class="fas fa-plus" style="margin-right: 8px;"></i>নতুন প্যাকেজ</button>
-                <hr style="margin: 25px 0; border: none; border-top: 1px solid var(--border-color);">
-                <button type="submit" class="btn">সেভ করুন</button>
-            </form>
-        </div>
-    </div>
-    
-    <div id="paymentMethodModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="paymentMethodModalTitle">নতুন পেমেন্ট মেথড</h2>
-                <span class="close-btn">&times;</span>
-            </div>
-            <form id="paymentMethodForm">
-                <input type="hidden" id="paymentMethodId">
-                <div class="input-group"> <label for="paymentMethodName">মেথডের নাম</label> <input type="text" id="paymentMethodName" placeholder="e.g., bKash" required> </div>
-                <div class="input-group"> <label for="paymentMethodNumber">নম্বর</label> <input type="text" id="paymentMethodNumber" placeholder="01700000000" required> </div>
-                <div class="input-group"> <label for="paymentMethodLogoUrl">লোগো URL</label> <input type="text" id="paymentMethodLogoUrl" onkeyup="updatePreview('paymentMethodLogoUrl', 'paymentMethodLogoPreview')" required> <img id="paymentMethodLogoPreview" class="preview-img" src="" alt="Logo Preview"> </div>
-                <button type="submit" class="btn">সেভ করুন</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="categoryModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>ক্যাটাগরি ম্যানেজ করুন</h2>
-                <span class="close-btn">&times;</span>
-            </div>
-            <form id="categoryForm">
-                <p style="color: var(--text-secondary); margin-bottom: 20px;">Upto 9</p>
-                <div id="categoryInputsContainer"></div>
-                <button type="submit" class="btn">save</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="eventModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>ইভেন্ট ম্যানেজ করুন</h2>
-                <span class="close-btn">&times;</span>
-            </div>
-            <form id="eventForm">
-                <div class="input-group" style="display: flex; align-items: center; justify-content: space-between;">
-                    <label for="eventStatusToggle" style="margin: 0;">ইভেন্ট চালু করুন</label>
-                    <label class="switch"> <input type="checkbox" id="eventStatusToggle"> <span class="slider"></span> </label>
-                </div>
-                 <div class="input-group">
-                    <label for="eventTitle">ইভেন্ট টাইটেল</label>
-                    <input type="text" id="eventTitle" placeholder="Special Event">
-                </div>
-                <div class="input-group">
-                    <label for="eventEndDate">শেষ হওয়ার তারিখ ও সময়</label>
-                    <input type="datetime-local" id="eventEndDate">
-                </div>
-                <hr style="margin: 20px 0; border-color: var(--border-color);">
-                <div class="input-group">
-                    <label>ইভেন্ট গেমস</label>
-                    <p style="color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">ইভেন্টে সর্বোচ্চ ২টি গেম যোগ করা যাবে।</p>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button type="button" class="btn" id="addNewEventGameBtn"><i class="fas fa-plus" style="margin-right: 8px;"></i>Add</button>
-                        <button type="button" class="btn btn-success" id="addExistingEventGameBtn"><i class="fas fa-list-ul" style="margin-right: 8px;"></i>Put</button>
-                        <button type="button" class="btn btn-danger" id="manageEventGamesBtn"><i class="fas fa-trash" style="margin-right: 8px;"></i>Remove</button>
+                <!-- Add/Edit Contact Modal -->
+                <div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="contactModalTitle">নতুন কন্টাক্ট যুক্ত করুন</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="contactForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">প্রতিষ্ঠানের নাম / ব্যক্তি</label>
+                                        <input type="text" class="form-control" id="contactName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">ফোন নম্বর</label>
+                                        <input type="text" class="form-control" id="contactPhone" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">বিস্তারিত / ঠিকানা (ঐচ্ছিক)</label>
+                                        <textarea class="form-control" id="contactDetails" rows="2"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বাতিল</button>
+                                <button type="button" class="btn btn-primary" id="btnSaveContactDB">সেভ করুন</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <button type="submit" class="btn">save</button>
-            </form>
-        </div>
-    </div>
 
-    <div id="addGamesToCategoryModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="addGamesToCategoryModalTitle"></h2>
-                <span class="close-btn">&times;</span>
-            </div>
-            <form id="addGamesToCategoryForm">
-                <input type="hidden" id="targetCategoryName">
-                <p style="color: var(--text-secondary); margin-bottom: 20px;">chose...</p>
-                <div id="uncategorizedGamesList" style="max-height: 300px; overflow-y: auto; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+                <!-- Updates Section (Updated with List and Edit/Delete) -->
+                <div id="updates" class="page-section fade-in d-none">
+                    <div class="card p-4">
+                        <h5 class="mb-4">নিউজ ম্যানেজমেন্ট</h5>
+                        
+                        <!-- Form -->
+                        <div class="card bg-body-tertiary p-3 mb-4">
+                            <h6 class="mb-3 text-muted" id="newsFormTitle">নতুন নিউজ পাবলিশ করুন</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">শিরোনাম</label>
+                                    <input type="text" class="form-control" id="newsTitle">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">তারিখ</label>
+                                    <input type="date" class="form-control" id="newsDate">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">ছবির URL</label>
+                                    <input type="text" class="form-control" id="newsImg">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">বিস্তারিত</label>
+                                    <textarea class="form-control" id="newsDesc" rows="3"></textarea>
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button id="btnCancelEditNews" class="btn btn-secondary d-none me-2">বাতিল</button>
+                                    <button id="btnPublishNews" class="btn btn-primary"><i class="fas fa-paper-plane me-2"></i>পাবলিশ করুন</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- List -->
+                        <h6 class="mb-3">প্রকাশিত নিউজ তালিকা</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 15%;">তারিখ</th>
+                                        <th style="width: 25%;">শিরোনাম</th>
+                                        <th style="width: 40%;">বিস্তারিত</th>
+                                        <th style="width: 20%;">অ্যাকশন</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="newsTableBody">
+                                    <!-- Dynamic News -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn" style="margin-top: 20px;">Add</button>
-            </form>
+
+                <!-- Settings Section -->
+                <div id="settings" class="page-section fade-in d-none">
+                    <div class="card p-4" style="max-width: 500px; margin: 0 auto;">
+                        <h5 class="mb-4 text-primary"><i class="fas fa-user-shield me-2"></i>পাসওয়ার্ড পরিবর্তন</h5>
+                        <div class="alert alert-info small">বর্তমানে লগইন করা: <span id="currentEmailDisplay"></span></div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">নতুন পাসওয়ার্ড</label>
+                            <input type="password" class="form-control" id="newFirebasePass">
+                        </div>
+                        <button id="btnUpdatePass" class="btn btn-warning w-100 fw-bold">পাসওয়ার্ড আপডেট করুন</button>
+                    </div>
+                </div>
+
+                <!-- About Us Section (Updated with Edit/Delete) -->
+                <div id="about" class="page-section fade-in d-none">
+                    <div class="row">
+                        <!-- Team Members -->
+                        <div class="col-md-6">
+                            <div class="card p-4 h-100">
+                                <h5 class="mb-3" id="teamFormTitle">টিম মেম্বার যুক্ত করুন</h5>
+                                <div class="card bg-body-tertiary p-2 mb-3">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm" id="teamName" placeholder="নাম"></div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm" id="teamRole" placeholder="পদবী"></div>
+                                        <div class="col-12"><input type="text" class="form-control form-control-sm" id="teamImg" placeholder="ছবির URL"></div>
+                                        <div class="col-12"><textarea class="form-control form-control-sm" id="teamBio" placeholder="সংক্ষিপ্ত বর্ণনা" rows="2"></textarea></div>
+                                        <div class="col-12 text-end">
+                                            <button id="btnCancelEditTeam" class="btn btn-sm btn-secondary d-none me-1">বাতিল</button>
+                                            <button id="btnAddTeam" class="btn btn-sm btn-success">যুক্ত করুন</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <h6 class="text-muted">টিম লিস্ট</h6>
+                                <ul class="list-group list-group-flush" id="teamList">
+                                    <!-- Dynamic List -->
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Partners (Updated with Edit/Delete) -->
+                        <div class="col-md-6">
+                            <div class="card p-4 h-100">
+                                <h5 class="mb-3" id="partnerFormTitle">পার্টনার লোগো যুক্ত করুন</h5>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="partnerLogoUrl" placeholder="লোগো URL">
+                                    <button class="btn btn-secondary d-none" type="button" id="btnCancelEditPartner">X</button>
+                                    <button class="btn btn-success" type="button" id="btnAddPartner">যুক্ত করুন</button>
+                                </div>
+                                <hr>
+                                <h6 class="text-muted">পার্টনার লিস্ট</h6>
+                                <div class="d-flex flex-wrap gap-2" id="partnerList">
+                                    <!-- Dynamic List -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Section -->
+                <div id="contact" class="page-section fade-in d-none">
+                    <div class="card p-4">
+                        <h5 class="mb-4">যোগাযোগের তথ্য আপডেট করুন</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">মোবাইল নম্বর</label>
+                                <input type="text" class="form-control" id="contactPhone">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">ইমেইল</label>
+                                <input type="text" class="form-control" id="contactEmail">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">ঠিকানা</label>
+                                <input type="text" class="form-control" id="contactAddress">
+                            </div>
+                            <div class="col-12 text-end">
+                                <button id="btnSaveContact" class="btn btn-primary">সেভ করুন</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
-    <div id="manageCategoryGamesModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="manageCategoryGamesModalTitle"></h2>
-                <span class="close-btn">&times;</span>
-            </div>
-            <p style="color: var(--text-secondary); margin-bottom: 20px;">seclet for Remove</p>
-            <div id="gamesInCategoryList" style="max-height: 400px; overflow-y: auto;">
-            </div>
-        </div>
-    </div>
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- FIREBASE INTEGRATION -->
+    <script type="module">
+        // Import Firebase Functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, deleteDoc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-    <script>
         const firebaseConfig = {
-          apiKey: "AIzaSyDjAnhVln8V-qpXDQmLWY8OTo7Qot01UPY",
-  authDomain: "topup24vercel.firebaseapp.com",
-  projectId: "topup24vercel",
-  storageBucket: "topup24vercel.firebasestorage.app",
-  messagingSenderId: "1054942807566",
-  appId: "1:1054942807566:web:953c23afdd81bf7d225e5f",
-  measurementId: "G-G700C4YP6W"
+            apiKey: "AIzaSyBnKQr2k2ZWnPlEZiJtMDewv6z3Z7p3kiU",
+            authDomain: "pacheacchi.firebaseapp.com",
+            projectId: "pacheacchi",
+            storageBucket: "pacheacchi.firebasestorage.app",
+            messagingSenderId: "679996219070",
+            appId: "1:679996219070:web:871b64fb4a5be296eac8ef",
+            measurementId: "G-M34YKMYHQ8"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        const loginContainer = document.getElementById('loginContainer');
-        const adminWrapper = document.getElementById('adminWrapper');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const pages = document.querySelectorAll('.page');
-        const headerTitle = document.getElementById('headerTitle');
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
+        // DOM Elements
+        const loginSection = document.getElementById('loginSection');
+        const mainApp = document.getElementById('mainApp');
+        const loadingSpinner = document.getElementById('loadingSpinner');
 
-        let usersMap = {};
-        let activeChatUserId = null;
-        let unsubscribeActiveChat;
-        let availableCategories = [];
+        // State Variables for Edit Mode
+        let editingNewsId = null;
+        let editingTeamId = null;
+        let editingPartnerId = null;
+        
+        // --- CONTACT LIST VARIABLES ---
+        let editingContactDBId = null;
+        let currentCLState = { category: '', division: '', district: '', upazila: '' };
+        let contactModal = null;
 
-        auth.onAuthStateChanged(user => {
+        // --- AUTH OBSERVER (Check if user is logged in) ---
+        onAuthStateChanged(auth, (user) => {
             if (user) {
-                loginContainer.style.display = 'none';
-                adminWrapper.style.display = 'block';
-                fetchAllUsers(); 
-                loadDashboardData();
-                loadBranding();
-                loadCategories(); 
+                // User is signed in
+                showApp(user);
             } else {
-                loginContainer.style.display = 'flex';
-                adminWrapper.style.display = 'none';
+                // User is signed out
+                showLogin();
             }
         });
 
-        async function loadBranding() {
-            const doc = await db.collection('settings').doc('branding').get();
-            if (doc.exists && doc.data().appName) {
-                document.getElementById('sidebarHeader').innerText = doc.data().appName;
-            } else {
-                document.getElementById('sidebarHeader').innerText = 'GameStore'; 
-            }
-        }
-
-        function handleAdminLogin() {
+        // --- LOGIN FUNCTION ---
+        document.getElementById('btnLogin').addEventListener('click', async () => {
             const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-            auth.signInWithEmailAndPassword(email, password)
-                .catch(error => alert('লগইন ব্যর্থ: ' + error.message));
-        }
+            const pass = document.getElementById('adminPass').value;
+            const errorMsg = document.getElementById('loginError');
 
-        logoutBtn.addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
-        menuToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
+            if(!email || !pass) {
+                errorMsg.innerText = "দয়া করে ইমেইল এবং পাসওয়ার্ড দিন";
+                return;
+            }
 
-        navLinks.forEach(link => {
-            if (link.id === 'logoutBtn') return;
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = link.getAttribute('href').substring(1);
-                pages.forEach(p => p.classList.remove('active'));
-                document.getElementById(targetId).classList.add('active');
-                navLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                headerTitle.innerText = link.innerText;
+            loadingSpinner.style.display = 'block';
+            errorMsg.innerText = '';
 
-                if (window.innerWidth <= 1023) sidebar.classList.remove('active');
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                // Observer will handle the UI switch
+            } catch (error) {
+                console.error(error);
+                errorMsg.innerText = "ভুল তথ্য! অথবা পারমিশন নেই।";
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        });
 
-                switch(targetId) {
-                    case 'dashboard': loadDashboardData(); break;
-                    case 'users': loadUsers(); break;
-                    case 'games': loadGames(); break;
-                    case 'orders': loadOrders(); break;
-                    case 'requests': loadMoneyRequests(); break;
-                    case 'paymentMethods': loadPaymentMethods(); break;
-                    case 'supportChats': loadSupportChats(); break;
-                    case 'popup': loadPopupSettings(); break;
-                    case 'settings': loadSiteSettings(); break;
-                }
+        // --- LOGOUT FUNCTION ---
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                alert("লগ আউট সফল হয়েছে!");
+            }).catch((error) => {
+                console.error(error);
             });
         });
-        
-        async function fetchAllUsers() {
-            const usersSnapshot = await db.collection('users').get();
-            usersMap = {};
-            usersSnapshot.forEach(doc => {
-                usersMap[doc.id] = doc.data();
-            });
+
+        // --- UI HELPERS ---
+        function showLogin() {
+            loginSection.classList.remove('d-none');
+            mainApp.classList.add('d-none');
+            mainApp.classList.remove('d-flex-wrapper');
         }
 
+        function showApp(user) {
+            loginSection.classList.add('d-none');
+            mainApp.classList.remove('d-none');
+            mainApp.classList.add('d-flex-wrapper');
+            
+            document.getElementById('displayUsername').innerText = user.email.split('@')[0];
+            document.getElementById('currentEmailDisplay').innerText = user.email;
+
+            // Load Initial Data
+            loadDashboardData();
+            loadGeneralSettings();
+            
+            // Init Modal
+            contactModal = new bootstrap.Modal(document.getElementById('contactModal'));
+        }
+
+        // --- FIRESTORE FUNCTIONS ---
+
+        // 1. Dashboard Data
         async function loadDashboardData() {
-             try {
-                const usersSnapshot = await db.collection('users').get();
-                const ordersSnapshot = await db.collection('orders').get();
-                const requestsSnapshot = await db.collection('moneyRequests').where('status', '==', 'Pending').get();
+            try {
+                const usersSnap = await getDocs(collection(db, "users"));
+                document.getElementById('totalUsersCount').innerText = usersSnap.size;
 
-                let totalRevenue = 0, pendingOrders = 0;
-                ordersSnapshot.forEach(doc => {
-                    const orderData = doc.data();
-                    if(orderData.status === 'Completed' && orderData.price) {
-                        totalRevenue += parseFloat(String(orderData.price).replace(/[^0-9.]/g, '')) || 0;
+                const newsSnap = await getDocs(collection(db, "news"));
+                document.getElementById('totalNewsCount').innerText = newsSnap.size;
+                
+                const teamSnap = await getDocs(collection(db, "team_members"));
+                document.getElementById('totalTeamCount').innerText = teamSnap.size;
+
+            } catch (e) {
+                console.log("Data load error: ", e);
+            }
+        }
+
+        // 2. Load & Save General Settings
+        async function loadGeneralSettings() {
+            try {
+                const docRef = doc(db, "settings", "siteConfig");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('siteName').value = data.siteName || '';
+                    document.getElementById('siteLogoUrl').value = data.logoUrl || '';
+                    if (data.banners && Array.isArray(data.banners)) {
+                        document.getElementById('banner1').value = data.banners[0] || '';
+                        document.getElementById('banner2').value = data.banners[1] || '';
+                        document.getElementById('banner3').value = data.banners[2] || '';
                     }
-                    if(orderData.status === 'Pending') pendingOrders++;
-                });
-                
-                document.getElementById('totalUsers').innerText = usersSnapshot.size;
-                document.getElementById('totalOrders').innerText = ordersSnapshot.size;
-                document.getElementById('totalRevenue').innerText = `৳ ${totalRevenue.toFixed(2)}`;
-                document.getElementById('pendingOrders').innerText = pendingOrders;
-                document.getElementById('pendingRequests').innerText = requestsSnapshot.size;
-            } catch (error) { console.error("ড্যাশবোর্ড লোড করতে সমস্যা:", error); }
+                    if (data.newsTicker && Array.isArray(data.newsTicker)) {
+                        document.getElementById('newsTickerInput').value = data.newsTicker.join(', ');
+                    }
+                }
+            } catch (e) { console.error(e); }
         }
 
-        async function loadUsers() {
-            const tbody = document.getElementById('usersTableBody');
-            tbody.innerHTML = '<tr><td colspan="5">লোড হচ্ছে...</td></tr>';
-            await fetchAllUsers();
-            let tableHtml = '';
-            for (const userId in usersMap) {
-                const user = usersMap[userId];
-                const balance = user.walletBalance ? user.walletBalance.toFixed(2) : '0.00';
-                const status = user.status || 'active';
-                const isBlocked = status === 'blocked';
-                // Handle Google Users who might not have a photoURL or Name in Firestore yet
-                const displayPhoto = user.photoURL || 'https://i.ibb.co/74CkxSP/avatar.png';
-                const displayName = user.name || 'No Name';
-
-                tableHtml += `
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center;">
-                                <img src="${displayPhoto}" alt="Avatar" class="user-avatar">
-                                ${displayName}
-                            </div>
-                        </td>
-                        <td>${user.email}</td>
-                        <td>৳ ${balance}</td>
-                        <td><span class="status-badge status-${status}">${status}</span></td>
-                        <td>
-                            <button class="action-btn edit" onclick="editUserBalance('${userId}', ${balance})" title="ব্যালেন্স এডিট করুন"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn toggle-status" onclick="toggleUserStatus('${userId}')" title="${isBlocked ? 'আনব্লক করুন' : 'ব্লক করুন'}">
-                                <i class="fas ${isBlocked ? 'fa-lock-open' : 'fa-lock'}"></i>
-                            </button>
-                            <button class="action-btn delete" onclick="deleteUser('${userId}')" title="ডিলিট করুন"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
-            }
-            tbody.innerHTML = tableHtml || '<tr><td colspan="5">কোনো ব্যবহারকারী পাওয়া যায়নি।</td></tr>';
-        }
-
-        async function loadGames() {
-            const tbody = document.getElementById('gamesTableBody');
-            tbody.innerHTML = '<tr><td colspan="5">লোড হচ্ছে...</td></tr>';
-            const snapshot = await db.collection('games').get();
-            let tableHtml = '';
-            snapshot.forEach(doc => {
-                const game = doc.data();
-                const statusClass = game.status === 'active' ? 'active' : (game.status === 'unavailable' ? 'unavailable' : 'Pending');
-                tableHtml += `
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <img src="${game.logo}" alt="${game.name}" style="width: 45px; height: 45px; object-fit: contain; border-radius: 8px; background-color: #f8fafc; border: 1px solid #e2e8f0;">
-                                <span>${game.name}</span>
-                            </div>
-                        </td>
-                        <td>${game.category || 'ক্যাটাগরি নেই'}</td>
-                        <td><span class="status-badge status-${statusClass}">${game.status}</span></td>
-                        <td>${game.packages ? game.packages.length : 0}</td>
-                        <td>
-                            <button class="action-btn edit" onclick="editGame('${doc.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn delete" onclick="deleteGame('${doc.id}')"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
-            });
-            tbody.innerHTML = tableHtml || '<tr><td colspan="5">কোনো গেম পাওয়া যায়নি।</td></tr>';
-        }
-        
-        function copyToClipboard(text, type) {
-            if (!text || text === 'N/A' || text === 'null') return;
-            navigator.clipboard.writeText(text).then(() => {
-                alert(`${type} কপি করা হয়েছে: ${text}`);
-            }).catch(err => {
-                console.error('কপি করতে ব্যর্থ: ', err);
-            });
-        }
-        
-        async function loadOrders() {
-            const tbody = document.getElementById('ordersTableBody');
-            tbody.innerHTML = '<tr><td colspan="10">লোড হচ্ছে...</td></tr>';
-            const ordersSnapshot = await db.collection('orders').get();
+        document.getElementById('btnSaveGeneral').addEventListener('click', async () => {
+            const name = document.getElementById('siteName').value;
+            const logo = document.getElementById('siteLogoUrl').value;
+            const b1 = document.getElementById('banner1').value;
+            const b2 = document.getElementById('banner2').value;
+            const b3 = document.getElementById('banner3').value;
+            const tickerRaw = document.getElementById('newsTickerInput').value;
             
-            let orders = [];
-            ordersSnapshot.forEach(doc => orders.push({id: doc.id, ...doc.data()}));
-            orders.sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
+            const tickerArray = tickerRaw.split(',').map(item => item.trim()).filter(item => item);
 
-            let tableHtml = '';
-            orders.forEach(order => {
-                const user = usersMap[order.userId];
-                const userEmail = user ? user.email : 'Unknown User';
-                tableHtml += `
-                    <tr>
-                        <td>${order.date ? order.date.toDate().toLocaleString('bn-BD') : 'N/A'}</td>
-                        <td><div class="copy-wrapper">${userEmail} <button class="copy-btn-inline" onclick="copyToClipboard('${userEmail}', 'Email')"><i class="far fa-copy"></i></button></div></td>
-                        <td>${order.game}</td>
-                        <td><div class="copy-wrapper">${order.playerId} <button class="copy-btn-inline" onclick="copyToClipboard('${order.playerId}', 'Player ID')"><i class="far fa-copy"></i></button></div></td>
-                        <td>${order.price}</td>
-                        <td><div class="copy-wrapper">${order.userPaymentNumber || 'N/A'} <button class="copy-btn-inline" onclick="copyToClipboard('${order.userPaymentNumber}', 'Mobile Number')"><i class="far fa-copy"></i></button></div></td>
-                        <td>${order.transactionId || 'N/A'}</td>
-                        <td><input type="text" id="unipin-${order.id}" value="${order.adminNote || ''}" placeholder="UNIPIN Code" style="width: 100%; padding: 5px; border: 1px solid var(--border-color); border-radius: 4px;"></td>
-                        <td>
-                            <select onchange="updateOrderStatus('${order.id}', this.value, '${order.paymentMethod}', '${order.userId}', ${order.price})" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
-                                <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                                <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
-                                <option value="Canceled" ${order.status === 'Canceled' ? 'selected' : ''}>Canceled</option>
-                                <option value="Rejected" ${order.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
-                            </select>
-                        </td>
-                        <td><button class="action-btn delete" onclick="deleteOrder('${order.id}')"><i class="fas fa-trash"></i></button></td>
-                    </tr>`;
-            });
-            tbody.innerHTML = tableHtml || '<tr><td colspan="10">কোনো অর্ডার পাওয়া যায়নি।</td></tr>';
-        }
-
-        async function loadMoneyRequests() {
-            const tbody = document.getElementById('requestsTableBody');
-            tbody.innerHTML = '<tr><td colspan="8">লোড হচ্ছে...</td></tr>';
-            const requestsSnapshot = await db.collection('moneyRequests').get();
-
-            let requests = [];
-            requestsSnapshot.forEach(doc => requests.push({id: doc.id, ...doc.data()}));
-            requests.sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
-
-            let tableHtml = '';
-            requests.forEach(request => {
-                const user = usersMap[request.userId];
-                const userEmail = user ? user.email : 'Unknown User';
-                tableHtml += `
-                    <tr>
-                        <td>${request.date ? request.date.toDate().toLocaleString('bn-BD') : 'N/A'}</td>
-                        <td><div class="copy-wrapper">${userEmail} <button class="copy-btn-inline" onclick="copyToClipboard('${userEmail}', 'Email')"><i class="far fa-copy"></i></button></div></td>
-                        <td>৳ ${request.amount}</td>
-                        <td>${request.paymentMethod}</td>
-                        <td><div class="copy-wrapper">${request.userPaymentNumber} <button class="copy-btn-inline" onclick="copyToClipboard('${request.userPaymentNumber}', 'Mobile Number')"><i class="far fa-copy"></i></button></div></td>
-                        <td><div class="copy-wrapper">${request.transactionId} <button class="copy-btn-inline" onclick="copyToClipboard('${request.transactionId}', 'Transaction ID')"><i class="far fa-copy"></i></button></div></td>
-                        <td><span class="status-badge status-${request.status}">${request.status}</span></td>
-                        <td>
-                            ${request.status === 'Pending' ? 
-                                `<button class="action-btn approve" onclick="approveMoneyRequest('${request.id}', '${request.userId}', ${request.amount})" title="Approve"><i class="fas fa-check"></i></button>
-                                 <button class="action-btn reject" onclick="rejectMoneyRequest('${request.id}')" title="Reject"><i class="fas fa-times"></i></button>` : ''}
-                            <button class="action-btn delete" onclick="deleteMoneyRequest('${request.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
-            });
-            tbody.innerHTML = tableHtml || '<tr><td colspan="8">কোনো রিকোয়েস্ট পাওয়া যায়নি।</td></tr>';
-        }
-        
-        async function approveMoneyRequest(requestId, userId, amount) {
-            await db.collection('moneyRequests').doc(requestId).update({ status: 'Approved' });
-            const userRef = db.collection('users').doc(userId);
-            await db.runTransaction(async (t) => {
-                const doc = await t.get(userRef);
-                const newBalance = (doc.data().walletBalance || 0) + amount;
-                t.update(userRef, { walletBalance: newBalance });
-            });
-            alert("রিকোয়েস্ট অ্যাপ্রুভ করা হয়েছে এবং ব্যালেন্স যোগ হয়েছে!");
-            loadMoneyRequests(); loadDashboardData();
-        }
-        
-        async function rejectMoneyRequest(requestId) {
-            if (confirm("আপনি কি এই রিকোয়েস্টটি রিজেক্ট করতে চান?")) {
-                await db.collection('moneyRequests').doc(requestId).update({ status: 'Rejected' });
-                alert("রিকোয়েস্ট রিজেক্ট করা হয়েছে!");
-                loadMoneyRequests(); loadDashboardData();
-            }
-        }
-
-        async function deleteMoneyRequest(requestId) {
-            if (confirm("আপনি কি নিশ্চিতভাবে এই রিকোয়েস্টটি মুছে ফেলতে চান?")) {
-                await db.collection('moneyRequests').doc(requestId).delete();
-                alert("রিকোয়েস্ট মুছে ফেলা হয়েছে!");
-                loadMoneyRequests(); loadDashboardData();
-            }
-        }
-
-        function editUserBalance(userId, currentBalance) {
-            const newBalance = prompt("নতুন ওয়ালেট ব্যালেন্স দিন:", currentBalance);
-            if (newBalance !== null && !isNaN(newBalance)) {
-                db.collection('users').doc(userId).update({ walletBalance: parseFloat(newBalance) })
-                    .then(() => { alert("ব্যালেন্স আপডেট হয়েছে!"); loadUsers(); })
-                    .catch(e => alert("ত্রুটি: " + e.message));
-            }
-        }
-        
-        async function toggleUserStatus(userId) {
             try {
-                const userRef = db.collection('users').doc(userId);
-                const doc = await userRef.get();
-                if (!doc.exists) {
-                    alert("ব্যবহারকারী পাওয়া যায়নি।");
-                    return;
-                }
-                const currentStatus = doc.data().status || 'active';
-                const newStatus = currentStatus === 'active' ? 'blocked' : 'active';
-                const action = newStatus === 'blocked' ? 'ব্লক' : 'আনব্লক';
-
-                if (confirm(`আপনি কি এই ব্যবহারকারীকে ${action} করতে চান?`)) {
-                    await userRef.update({ status: newStatus });
-                    alert(`ব্যবহারকারীকে সফলভাবে ${action} করা হয়েছে।`);
-                    loadUsers();
-                }
-            } catch (error) {
-                alert("স্ট্যাটাস পরিবর্তন করতে সমস্যা হয়েছে: " + error.message);
+                await setDoc(doc(db, "settings", "siteConfig"), {
+                    siteName: name,
+                    logoUrl: logo,
+                    banners: [b1, b2, b3],
+                    newsTicker: tickerArray,
+                    updatedAt: new Date()
+                }, { merge: true });
+                alert("সেটিংস সেভ হয়েছে!");
+            } catch (e) {
+                alert("এরর: " + e.message);
             }
-        }
+        });
 
-        async function deleteUser(userId) {
-            if (confirm("আপনি কি নিশ্চিতভাবে এই ব্যবহারকারীকে ডাটাবেজ থেকে মুছে ফেলতে চান? এটি ফেরানো যাবে না।\n\nবিঃদ্রঃ: এটি শুধুমাত্র অ্যাপ ডাটাবেজ থেকে ডিলিট করবে। Firebase Authentication থেকে ডিলিট করার জন্য Firebase Console ব্যবহার করুন।")) {
-                try {
-                    await db.collection('users').doc(userId).delete();
-                    alert('ব্যবহারকারীকে সফলভাবে অ্যাপ ডাটাবেজ থেকে মুছে ফেলা হয়েছে।');
-                    loadUsers();
-                } catch (error) {
-                    alert("ডিলিট করতে সমস্যা হয়েছে: " + error.message);
-                }
-            }
-        }
+        // 3. NEWS MANAGEMENT (Add/Edit/List/Delete)
         
-        async function updateOrderStatus(orderId, newStatus, paymentMethod, userId, price) {
-            const adminNote = document.getElementById(`unipin-${orderId}`).value;
-
-            if ((newStatus === 'Canceled' || newStatus === 'Rejected') && (paymentMethod === 'Wallet')) {
-                const confirmRefund = confirm(`এই অর্ডারটি ${paymentMethod} দিয়ে করা হয়েছিল। আপনি কি ব্যবহারকারীকে ${price} টাকা রিফান্ড করতে চান?`);
-                if (confirmRefund) {
-                     const userRef = db.collection('users').doc(userId);
-                     await db.runTransaction(async (t) => {
-                        const doc = await t.get(userRef);
-                        const newBalance = (doc.data().walletBalance || 0) + parseFloat(price);
-                        t.update(userRef, { walletBalance: newBalance });
-                    });
-                    alert("টাকা রিফান্ড করা হয়েছে!");
-                }
-            }
-
-            await db.collection('orders').doc(orderId).update({ 
-                status: newStatus,
-                adminNote: adminNote
-            });
-            alert("অর্ডার স্ট্যাটাস এবং UNIPIN কোড আপডেট হয়েছে!");
-            loadOrders(); loadDashboardData();
-        }
-        
-        async function deleteOrder(orderId) {
-            if(confirm("আপনি কি এই অর্ডারটি মুছে ফেলতে চান?")) {
-                await db.collection('orders').doc(orderId).delete();
-                loadOrders(); loadDashboardData();
-            }
-        }
-
-        async function deleteGame(gameId) {
-             if(confirm("আপনি কি এই গেমটি মুছে ফেলতে চান?")) {
-                await db.collection('games').doc(gameId).delete();
-                loadGames();
-            }
-        }
-        
-        function formatMessage(text) {
-            let formattedText = text;
-            const urlRegex = /(https?:\/\/[^\s]+)/g;
-            const emailRegex = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
-            const phoneRegex = /\b(\+?88)?01[3-9][0-9]{8}\b/g;
-
-            formattedText = formattedText.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
-            formattedText = formattedText.replace(emailRegex, '<a href="mailto:$&">$&</a>');
-            formattedText = formattedText.replace(phoneRegex, '<a href="tel:$&">$&</a>');
-            
-            return formattedText;
-        }
-
-        async function loadSupportChats() {
-            const snapshot = await db.collection('supportMessages').get();
-            
-            const conversations = {};
-            snapshot.docs.forEach(doc => {
-                const data = doc.data();
-                if (!conversations[data.userId] || (data.timestamp?.seconds > conversations[data.userId].timestamp?.seconds)) {
-                    conversations[data.userId] = {
-                        userName: usersMap[data.userId]?.email || data.userName || data.userId,
-                        lastMessage: data.message,
-                        timestamp: data.timestamp
-                    };
-                }
-            });
-
-            let conversationArray = Object.keys(conversations).map(key => ({userId: key, ...conversations[key]}));
-            conversationArray.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-
-            const chatListDiv = document.getElementById('chatUserList');
-            chatListDiv.innerHTML = '';
-            if (conversationArray.length === 0) {
-                 chatListDiv.innerHTML = '<p style="padding: 15px; text-align: center; color: var(--text-secondary);">কোনো মেসেজ পাওয়া যায়নি।</p>';
-                 return;
-            }
-
-            conversationArray.forEach(chat => {
-                const userDiv = document.createElement('div');
-                userDiv.className = 'chat-user';
-                userDiv.dataset.userid = chat.userId;
-                
-                const userInfo = document.createElement('div');
-                userInfo.style.flexGrow = '1';
-                userInfo.innerHTML = `<p>${chat.userName}</p><span>${chat.lastMessage.substring(0, 25)}...</span>`;
-                userInfo.onclick = () => openUserChat(chat.userId, chat.userName);
-
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'action-btn delete';
-                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteBtn.title = 'এই কনভার্সেশনটি ডিলিট করুন';
-                deleteBtn.onclick = (e) => {
-                    e.stopPropagation(); 
-                    deleteUserChatHistory(chat.userId);
-                };
-
-                userDiv.appendChild(userInfo);
-                userDiv.appendChild(deleteBtn);
-                chatListDiv.appendChild(userDiv);
-            });
-        }
-
-        async function deleteUserChatHistory(userId) {
-            const userName = usersMap[userId]?.email || userId;
-            if (!confirm(`আপনি কি '${userName}' এর সাথে সমস্ত চ্যাট হিস্ট্রি মুছে ফেলতে চান? এই কাজটি ফেরানো যাবে না।`)) {
-                return;
-            }
+        async function loadNewsList() {
+            const tbody = document.getElementById('newsTableBody');
+            tbody.innerHTML = '';
             try {
-                const querySnapshot = await db.collection('supportMessages').where('userId', '==', userId).get();
-                if (querySnapshot.empty) {
-                    alert("এই ব্যবহারকারীর জন্য কোনো চ্যাট হিস্ট্রি পাওয়া যায়নি।");
-                    loadSupportChats();
-                    return;
+                const snap = await getDocs(collection(db, "news"));
+                if(snap.empty) {
+                     tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">কোন নিউজ পাওয়া যায়নি</td></tr>';
+                     return;
                 }
-                const batch = db.batch();
-                querySnapshot.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
-                await batch.commit();
-
-                alert('চ্যাট হিস্ট্রি সফলভাবে ডিলিট করা হয়েছে।');
-
-                if (activeChatUserId === userId) {
-                    document.getElementById('chatHeader').textContent = 'একজন ব্যবহারকারী সিলেক্ট করুন';
-                    document.getElementById('chatMessages').innerHTML = '';
-                    document.getElementById('chatReplyContainer').style.display = 'none';
-                    activeChatUserId = null;
-                    if(unsubscribeActiveChat) unsubscribeActiveChat();
-                }
-                loadSupportChats();
-            } catch (error) {
-                console.error("চ্যাট হিস্ট্রি ডিলিট করতে সমস্যা হয়েছে:", error);
-                alert("ত্রুটি: " + error.message);
-            }
-        }
-
-        function openUserChat(userId, userName) {
-            activeChatUserId = userId;
-            document.querySelectorAll('.chat-user').forEach(el => el.classList.remove('active'));
-            const activeUser = document.querySelector(`.chat-user[data-userid="${userId}"]`);
-            if(activeUser) activeUser.classList.add('active');
-
-            document.getElementById('chatHeader').textContent = userName;
-            const messagesDiv = document.getElementById('chatMessages');
-            document.getElementById('chatReplyContainer').style.display = 'flex';
-            
-            if (unsubscribeActiveChat) unsubscribeActiveChat();
-
-            unsubscribeActiveChat = db.collection('supportMessages').where('userId', '==', userId)
-                .onSnapshot(snapshot => {
-                    messagesDiv.innerHTML = '';
-                    let messages = [];
-                    snapshot.forEach(doc => messages.push({id: doc.id, ...doc.data()}));
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const tr = document.createElement('tr');
+                    // Store data in a way we can retrieve for editing without re-fetching
+                    const dataStr = encodeURIComponent(JSON.stringify(d));
                     
-                    messages.sort((a, b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0));
-
-                    messages.forEach(data => {
-                        const wrapper = document.createElement('div');
-                        wrapper.className = `message-wrapper ${data.sender}`;
-
-                        const msgEl = document.createElement('div');
-                        msgEl.className = `message ${data.sender}`;
-                        msgEl.innerHTML = formatMessage(data.message);
-
-                        const deleteBtn = document.createElement('i');
-                        deleteBtn.className = 'fas fa-trash delete-msg-btn';
-                        deleteBtn.title = 'মেসেজ ডিলিট করুন';
-                        deleteBtn.onclick = () => deleteSupportMessage(data.id);
-
-                        wrapper.appendChild(msgEl);
-                        wrapper.appendChild(deleteBtn);
-                        messagesDiv.appendChild(wrapper);
-                    });
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                });
-        }
-        document.getElementById('chatReplyBtn').onclick = async () => {
-            const input = document.getElementById('chatReplyInput');
-            const message = input.value.trim();
-            if (message && activeChatUserId) {
-                input.value = '';
-                await db.collection('supportMessages').add({
-                    userId: activeChatUserId,
-                    message: message,
-                    sender: 'admin',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }
-        };
-
-        function deleteSupportMessage(messageId) {
-            if (confirm("আপনি কি নিশ্চিতভাবে এই মেসেজটি ডিলিট করতে চান?")) {
-                db.collection('supportMessages').doc(messageId).delete()
-                  .catch(e => alert("ডিলিট করতে সমস্যা হয়েছে: " + e.message));
-            }
-        }
-
-        async function loadPopupSettings() {
-            const doc = await db.collection('settings').doc('popup').get();
-            if (doc.exists) {
-                const data = doc.data();
-                document.getElementById('popupStatusToggle').checked = data.isActive || false;
-                document.getElementById('popupTitleInput').value = data.title || '';
-                document.getElementById('popupMessageInput').value = data.message || '';
-                document.getElementById('popupButtonTextInput').value = data.buttonText || '';
-                document.getElementById('popupButtonLinkInput').value = data.buttonLink || '';
-                document.getElementById('popupImageUrlInput').value = data.imageUrl || '';
-            }
-        }
-        async function updatePopup() {
-            const isActive = document.getElementById('popupStatusToggle').checked;
-            const title = document.getElementById('popupTitleInput').value;
-            const message = document.getElementById('popupMessageInput').value;
-            const imageUrl = document.getElementById('popupImageUrlInput').value;
-            const buttonText = document.getElementById('popupButtonTextInput').value;
-            const buttonLink = document.getElementById('popupButtonLinkInput').value;
-            
-            await db.collection('settings').doc('popup').set({ isActive, title, message, imageUrl, buttonText, buttonLink });
-            alert('পপ-আপ সফলভাবে আপডেট হয়েছে!');
-        }
-        
-        async function loadSiteSettings() {
-            // Load Footer Settings (NEW)
-            const contactDoc = await db.collection('settings').doc('contact').get();
-            if (contactDoc.exists) {
-                const data = contactDoc.data();
-                document.getElementById('contactAddress').value = data.address || '';
-                document.getElementById('whatsappLink').value = data.whatsappLink || '';
-                document.getElementById('whatsappStatus').value = data.whatsappStatus || '';
-                document.getElementById('telegramLink').value = data.telegramLink || '';
-                document.getElementById('telegramStatus').value = data.telegramStatus || '';
-            }
-            const appDoc = await db.collection('settings').doc('app').get();
-            if (appDoc.exists) {
-                document.getElementById('playStoreLink').value = appDoc.data().playStoreLink || '';
-            }
-
-            // Existing Settings
-            const brandingDoc = await db.collection('settings').doc('branding').get();
-            if (brandingDoc.exists) {
-                const { appName, profileIconUrl } = brandingDoc.data();
-                document.getElementById('appName').value = appName || '';
-                document.getElementById('profileIconUrl').value = profileIconUrl || '';
-                updatePreview('profileIconUrl', 'profileIconPreview');
-            }
-            
-            const noticeDoc = await db.collection('settings').doc('notice').get();
-            if (noticeDoc.exists) {
-                document.getElementById('marqueeText').value = noticeDoc.data().text || '';
-            }
-            
-            const termsDoc = await db.collection('settings').doc('terms').get();
-            if (termsDoc.exists) {
-                document.getElementById('termsTitle').value = termsDoc.data().title || '';
-                document.getElementById('termsText').value = termsDoc.data().text || '';
-            }
-
-
-            const avatarDoc = await db.collection('settings').doc('defaultAvatars').get();
-            if (avatarDoc.exists) {
-                const { maleAvatarUrl, femaleAvatarUrl } = avatarDoc.data();
-                document.getElementById('maleAvatarUrl').value = maleAvatarUrl || '';
-                document.getElementById('femaleAvatarUrl').value = femaleAvatarUrl || '';
-                updatePreview('maleAvatarUrl', 'maleAvatarPreview');
-                updatePreview('femaleAvatarUrl', 'femaleAvatarPreview');
-            }
-
-            const sliderDoc = await db.collection('settings').doc('slider').get();
-            const sliderUrls = (sliderDoc.exists && sliderDoc.data().imageUrls) ? sliderDoc.data().imageUrls : [];
-            const container = document.getElementById('sliderInputsContainer');
-            container.innerHTML = '';
-            for (let i = 0; i < 5; i++) {
-                container.innerHTML += `
-                    <div class="input-group">
-                        <label for="slider${i}">স্লাইডার ইমেজ ${i + 1} URL</label>
-                        <input type="text" id="slider${i}" value="${sliderUrls[i] || ''}" placeholder="Image URL ${i+1}">
-                    </div>`;
-            }
-
-            const onlineStatusDoc = await db.collection('settings').doc('onlineStatus').get();
-            if (onlineStatusDoc.exists) {
-                document.getElementById('onlineStatusToggle').checked = onlineStatusDoc.data().isOnline;
-            }
-        }
-        
-        // NEW FUNCTION: Update Footer Settings
-        async function updateFooterSettings() {
-            const address = document.getElementById('contactAddress').value;
-            const whatsappLink = document.getElementById('whatsappLink').value;
-            const whatsappStatus = document.getElementById('whatsappStatus').value;
-            const telegramLink = document.getElementById('telegramLink').value;
-            const telegramStatus = document.getElementById('telegramStatus').value;
-            const playStoreLink = document.getElementById('playStoreLink').value;
-
-            try {
-                await db.collection('settings').doc('contact').set({
-                    address, whatsappLink, whatsappStatus, telegramLink, telegramStatus
-                }, { merge: true });
-
-                await db.collection('settings').doc('app').set({
-                    playStoreLink
-                }, { merge: true });
-
-                alert('ফুটার সেটিংস সফলভাবে আপডেট হয়েছে!');
-            } catch (error) {
-                alert('ত্রুটি: ' + error.message);
-            }
-        }
-        
-        document.getElementById('onlineStatusToggle').addEventListener('change', async (e) => {
-            await db.collection('settings').doc('onlineStatus').set({ isOnline: e.target.checked });
-        });
-
-        async function updateBranding() {
-            const newAppName = document.getElementById('appName').value;
-            const newProfileIconUrl = document.getElementById('profileIconUrl').value;
-            await db.collection('settings').doc('branding').set({ 
-                appName: newAppName,
-                profileIconUrl: newProfileIconUrl
-            }, { merge: true });
-            alert('ব্র্যান্ডিং সফলভাবে আপডেট হয়েছে!');
-            loadBranding();
-        }
-
-        async function updateMarquee() {
-            const text = document.getElementById('marqueeText').value;
-            await db.collection('settings').doc('notice').set({ text: text });
-            alert('মারকুই নোটিশ সফলভাবে আপডেট হয়েছে!');
-        }
-        
-        async function updateTerms() {
-            const title = document.getElementById('termsTitle').value;
-            const text = document.getElementById('termsText').value;
-            await db.collection('settings').doc('terms').set({ title, text });
-            alert('টার্মস অ্যান্ড কন্ডিশনস সফলভাবে আপডেট হয়েছে!');
-        }
-
-        async function updateDefaultAvatars() {
-            const maleAvatarUrl = document.getElementById('maleAvatarUrl').value;
-            const femaleAvatarUrl = document.getElementById('femaleAvatarUrl').value;
-            await db.collection('settings').doc('defaultAvatars').set({ maleAvatarUrl, femaleAvatarUrl });
-            alert('ডিফল্ট লোগো সফলভাবে আপডেট হয়েছে!');
-        }
-
-        async function updateSlider() {
-            const urls = [];
-            for (let i = 0; i < 5; i++) {
-                urls.push(document.getElementById(`slider${i}`).value);
-            }
-            await db.collection('settings').doc('slider').set({ imageUrls: urls });
-            alert('স্লাইডার সফলভাবে আপডেট হয়েছে!');
-        }
-
-        function updatePreview(inputId, previewId) {
-            const url = document.getElementById(inputId).value;
-            const preview = document.getElementById(previewId);
-            if (url) {
-                preview.src = url;
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
-            }
-        }
-
-        const gameModal = document.getElementById('gameModal');
-        const addGameBtn = document.getElementById('addGameBtn');
-        const closeBtn = document.querySelector('#gameModal .close-btn');
-        const gameForm = document.getElementById('gameForm');
-        const packagesContainer = document.getElementById('packagesContainer');
-        const addPackageBtn = document.getElementById('addPackageBtn');
-
-        addGameBtn.onclick = () => {
-            gameForm.reset();
-            document.querySelectorAll('.error-message').forEach(el => el.innerText = '');
-            document.getElementById('gameId').value = '';
-            document.getElementById('gameRank').value = '';
-            document.getElementById('badgeText').value = '';
-            document.getElementById('inputType').value = 'userid';
-            document.getElementById('gameDescription').value = '';
-            document.getElementById('tutorialLink').value = ''; /* Added Reset */
-            
-            document.getElementById('modalTitle').innerText = 'নতুন গেম যোগ করুন';
-            packagesContainer.innerHTML = '';
-            updatePreview('gameLogo', 'logoPreview');
-            document.getElementById('gameCategoryGroup').style.display = 'none';
-            addPackageField();
-            gameModal.style.display = 'block';
-        }
-        closeBtn.onclick = () => gameModal.style.display = 'none';
-        window.onclick = (event) => { if (event.target == gameModal) gameModal.style.display = 'none'; }
-        addPackageBtn.addEventListener('click', () => addPackageField());
-
-        function addPackageField(amount = '', price = '', stock = '') {
-            const div = document.createElement('div');
-            div.className = 'form-grid package-entry';
-            div.style.alignItems = 'center';
-            div.style.marginBottom = '10px';
-            div.innerHTML = `
-                 <div class="input-group">
-                    <input type="text" class="package-amount" placeholder="অ্যামাউন্ট (e.g., 100 Diamonds)" value="${amount}">
-                </div>
-                <div class="input-group" style="display: flex; align-items: center; gap: 5px;">
-                    <input type="text" class="package-price" placeholder="মূল্য (e.g., ৳120)" value="${price}">
-                    <input type="number" class="package-stock" placeholder="Stock" value="${stock}" style="width: 80px;" min="0" oninput="validity.valid||(value='');">
-                    <button type="button" class="action-btn delete" onclick="this.parentElement.parentElement.remove()"><i class="fas fa-trash"></i></button>
-                </div>`;
-            packagesContainer.appendChild(div);
-        }
-
-        function validateGameForm() {
-            let isValid = true;
-            document.querySelectorAll('.error-message').forEach(el => el.innerText = '');
-
-            const gameName = document.getElementById('gameName').value.trim();
-            if (!gameName) {
-                document.getElementById('gameNameError').innerText = 'গেমের নাম আবশ্যক।';
-                isValid = false;
-            }
-
-            const gameLogo = document.getElementById('gameLogo').value.trim();
-            if (!gameLogo) {
-                document.getElementById('gameLogoError').innerText = 'লোগো URL আবশ্যক।';
-                isValid = false;
-            }
-
-            const gameBanner = document.getElementById('gameBanner').value.trim();
-            if (!gameBanner) {
-                document.getElementById('gameBannerError').innerText = 'ব্যানার URL আবশ্যক।';
-                isValid = false;
-            }
-            return isValid;
-        }
-
-        async function editGame(gameId) {
-            const doc = await db.collection('games').doc(gameId).get();
-            if (!doc.exists) return;
-            const game = doc.data();
-            
-            gameForm.reset();
-            document.querySelectorAll('.error-message').forEach(el => el.innerText = '');
-
-            document.getElementById('gameId').value = doc.id;
-            document.getElementById('gameName').value = game.name;
-            document.getElementById('gameStatus').value = game.status;
-            document.getElementById('gameLogo').value = game.logo;
-            document.getElementById('gameBanner').value = game.banner;
-            
-            document.getElementById('gameCategoryGroup').style.display = 'none';
-            
-            document.getElementById('gameRank').value = game.rank || '';
-            document.getElementById('badgeText').value = game.badgeText || '';
-            document.getElementById('inputType').value = game.inputType || 'userid';
-            document.getElementById('gameDescription').value = game.description || '';
-            document.getElementById('tutorialLink').value = game.tutorialLink || ''; /* Load Tutorial Link */
-
-            document.getElementById('modalTitle').innerText = 'গেম এডিট করুন';
-            packagesContainer.innerHTML = '';
-            updatePreview('gameLogo', 'logoPreview');
-            if (game.packages && game.packages.length > 0) {
-                game.packages.forEach(pkg => addPackageField(pkg.amount, pkg.price, pkg.stock));
-            } else { addPackageField(); }
-            gameModal.style.display = 'block';
-        }
-
-        gameForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!validateGameForm()) return;
-
-            const gameId = document.getElementById('gameId').value;
-            const packages = [];
-            document.querySelectorAll('.package-entry').forEach(entry => {
-                const amount = entry.querySelector('.package-amount').value;
-                const price = entry.querySelector('.package-price').value;
-                let stock = entry.querySelector('.package-stock').value;
-                if (stock && parseInt(stock) < 0) stock = "0";
-                
-                if (amount && price) packages.push({ amount, price, stock });
-            });
-
-            const gameData = {
-                name: document.getElementById('gameName').value,
-                status: document.getElementById('gameStatus').value,
-                rank: document.getElementById('gameRank').valueAsNumber || 999,
-                badgeText: document.getElementById('badgeText').value,
-                inputType: document.getElementById('inputType').value,
-                description: document.getElementById('gameDescription').value,
-                tutorialLink: document.getElementById('tutorialLink').value, /* Save Tutorial Link */
-                logo: document.getElementById('gameLogo').value,
-                banner: document.getElementById('gameBanner').value,
-                packages: packages
-            };
-
-            const categoryInput = document.getElementById('gameCategory');
-            if (document.getElementById('gameCategoryGroup').style.display !== 'none' && categoryInput.value) {
-                gameData.category = categoryInput.value;
-            }
-
-            try {
-                if (gameId) {
-                    await db.collection('games').doc(gameId).update(gameData);
-                    alert("গেম সফলভাবে আপডেট হয়েছে!");
-                } else {
-                    if (!gameData.category) {
-                        gameData.category = '';
-                    }
-                    await db.collection('games').add(gameData);
-                    alert("গেম সফলভাবে যোগ করা হয়েছে!");
-                }
-                gameModal.style.display = 'none';
-                loadGames();
-            } catch (error) {
-                alert("ত্রুটি ঘটেছে: " + error.message);
-                console.error(error);
-            }
-        });
-
-        const paymentMethodModal = document.getElementById('paymentMethodModal');
-        const addPaymentMethodBtn = document.getElementById('addPaymentMethodBtn');
-        const paymentMethodForm = document.getElementById('paymentMethodForm');
-        
-        addPaymentMethodBtn.onclick = () => {
-            paymentMethodForm.reset();
-            document.getElementById('paymentMethodId').value = '';
-            document.getElementById('paymentMethodModalTitle').innerText = 'নতুন পেমেন্ট মেথড';
-            updatePreview('paymentMethodLogoUrl', 'paymentMethodLogoPreview');
-            paymentMethodModal.style.display = 'block';
-        }
-
-        document.querySelector('#paymentMethodModal .close-btn').onclick = () => paymentMethodModal.style.display = 'none';
-        window.addEventListener('click', (event) => {
-            if (event.target == paymentMethodModal) paymentMethodModal.style.display = 'none';
-        });
-
-        async function loadPaymentMethods() {
-            const tbody = document.getElementById('paymentMethodsTableBody');
-            tbody.innerHTML = '<tr><td colspan="4">লোড হচ্ছে...</td></tr>';
-            const snapshot = await db.collection('paymentMethods').get();
-            let tableHtml = '';
-            snapshot.forEach(doc => {
-                const method = doc.data();
-                tableHtml += `
-                    <tr>
-                        <td>${method.name}</td>
-                        <td>${method.number}</td>
-                        <td><img src="${method.logoUrl}" alt="${method.name}" class="logo-avatar"></td>
+                    tr.innerHTML = `
+                        <td>${d.date || '-'}</td>
+                        <td>${d.title}</td>
+                        <td><small>${d.content ? d.content.substring(0, 50) + '...' : ''}</small></td>
                         <td>
-                            <button class="action-btn edit" onclick="editPaymentMethod('${doc.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn delete" onclick="deletePaymentMethod('${doc.id}')"><i class="fas fa-trash"></i></button>
+                            <span class="badge bg-warning text-dark action-btn" onclick="editNews('${doc.id}', '${dataStr}')"><i class="fas fa-edit"></i></span>
+                            <span class="badge bg-danger action-btn" onclick="deleteDocById('news', '${doc.id}')"><i class="fas fa-trash"></i></span>
                         </td>
-                    </tr>`;
-            });
-            tbody.innerHTML = tableHtml || '<tr><td colspan="4">কোনো পেমেন্ট মেথড পাওয়া যায়নি।</td></tr>';
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch(e) { console.error(e); }
         }
 
-        async function editPaymentMethod(methodId) {
-            const doc = await db.collection('paymentMethods').doc(methodId).get();
-            if (!doc.exists) return;
-            const method = doc.data();
-            document.getElementById('paymentMethodId').value = doc.id;
-            document.getElementById('paymentMethodName').value = method.name;
-            document.getElementById('paymentMethodNumber').value = method.number;
-            document.getElementById('paymentMethodLogoUrl').value = method.logoUrl;
-            document.getElementById('paymentMethodModalTitle').innerText = 'পেমেন্ট মেথড এডিট করুন';
-            updatePreview('paymentMethodLogoUrl', 'paymentMethodLogoPreview');
-            paymentMethodModal.style.display = 'block';
-        }
-        
-        async function deletePaymentMethod(methodId) {
-            if (confirm("আপনি কি এই পেমেন্ট মেথডটি মুছে ফেলতে চান?")) {
-                await db.collection('paymentMethods').doc(methodId).delete();
-                alert("পেমেন্ট মেথড মুছে ফেলা হয়েছে!");
-                loadPaymentMethods();
-            }
-        }
+        // Add / Update News Button
+        document.getElementById('btnPublishNews').addEventListener('click', async () => {
+            const title = document.getElementById('newsTitle').value;
+            const date = document.getElementById('newsDate').value;
+            const img = document.getElementById('newsImg').value;
+            const desc = document.getElementById('newsDesc').value;
 
-        paymentMethodForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const methodId = document.getElementById('paymentMethodId').value;
-            const methodData = {
-                name: document.getElementById('paymentMethodName').value,
-                number: document.getElementById('paymentMethodNumber').value,
-                logoUrl: document.getElementById('paymentMethodLogoUrl').value
-            };
+            if(!title) return alert("শিরোনাম দিন!");
 
             try {
-                if (methodId) {
-                    await db.collection('paymentMethods').doc(methodId).update(methodData);
-                    alert("পেমেন্ট মেথড সফলভাবে আপডেট হয়েছে!");
+                if(editingNewsId) {
+                    // Update
+                    await updateDoc(doc(db, "news", editingNewsId), {
+                        title: title, date: date, imageUrl: img, content: desc, updatedAt: new Date()
+                    });
+                    alert("নিউজ আপডেট হয়েছে!");
+                    resetNewsForm();
                 } else {
-                    await db.collection('paymentMethods').add(methodData);
-                    alert("পেমেন্ট মেথড সফলভাবে যোগ করা হয়েছে!");
+                    // Add
+                    await addDoc(collection(db, "news"), {
+                        title: title, date: date, imageUrl: img, content: desc, createdAt: new Date()
+                    });
+                    alert("নিউজ পাবলিশ হয়েছে!");
+                    document.getElementById('newsTitle').value = "";
+                    document.getElementById('newsDate').value = "";
+                    document.getElementById('newsImg').value = "";
+                    document.getElementById('newsDesc').value = "";
                 }
-                paymentMethodModal.style.display = 'none';
-                loadPaymentMethods();
-            } catch (error) {
-                alert("ত্রুটি: " + error.message);
+                loadNewsList();
+            } catch (e) {
+                alert("এরর: " + e.message);
             }
         });
-        
-        const categoryModal = document.getElementById('categoryModal');
-        const manageCategoriesBtn = document.getElementById('manageCategoriesBtn');
-        const categoryForm = document.getElementById('categoryForm');
-        const addGamesToCategoryModal = document.getElementById('addGamesToCategoryModal');
-        const manageCategoryGamesModal = document.getElementById('manageCategoryGamesModal');
 
-        manageCategoriesBtn.onclick = async () => {
-            await loadCategories();
-            const container = document.getElementById('categoryInputsContainer');
-            container.innerHTML = '';
-            for(let i = 0; i < 9; i++) {
-                const categoryName = availableCategories[i] || '';
-                const entry = document.createElement('div');
-                entry.className = 'category-management-entry';
-                entry.innerHTML = `
-                    <label style="font-weight: 600;">${i + 1}.</label>
-                    <input type="text" id="categoryName${i}" placeholder="ক্যাটাগরির নাম দিন" value="${categoryName}">
-                    <button type="button" class="btn btn-success add-games-to-cat-btn" data-index="${i}" ${!categoryName ? 'disabled' : ''} title="গেম যোগ করুন"><i class="fas fa-plus"></i></button>
-                    <button type="button" class="btn edit-cat-games-btn" data-name="${categoryName}" ${!categoryName ? 'disabled' : ''} title="গেম এডিট/রিমুভ করুন"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="btn btn-danger delete-cat-btn" data-name="${categoryName}" ${!categoryName ? 'disabled' : ''} title="ক্যাটাগরি ডিলিট করুন"><i class="fas fa-trash"></i></button>
-                `;
-                container.appendChild(entry);
-            }
+        // Edit News Logic
+        window.editNews = (id, dataStr) => {
+            const data = JSON.parse(decodeURIComponent(dataStr));
+            editingNewsId = id;
+            document.getElementById('newsTitle').value = data.title || '';
+            document.getElementById('newsDate').value = data.date || '';
+            document.getElementById('newsImg').value = data.imageUrl || '';
+            document.getElementById('newsDesc').value = data.content || '';
             
-            container.querySelectorAll('.add-games-to-cat-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const index = btn.dataset.index;
-                    const catName = document.getElementById(`categoryName${index}`).value.trim();
-                    if(catName) openAddGamesToCategoryModal(catName);
-                    else alert("গেম যোগ করার আগে ক্যাটাগরির নাম দিন।");
-                };
-            });
-            container.querySelectorAll('.edit-cat-games-btn').forEach(btn => {
-                btn.onclick = () => {
-                    if (btn.dataset.name) openManageCategoryGamesModal(btn.dataset.name);
-                    else alert("গেম ম্যানেজ করার জন্য এটি একটি সেভ করা ক্যাটাগরি হতে হবে।");
-                };
-            });
-             container.querySelectorAll('.delete-cat-btn').forEach(btn => {
-                btn.onclick = () => {
-                    if (btn.dataset.name) deleteCategory(btn.dataset.name);
-                    else alert("ডিলিট করার জন্য এটি একটি সেভ করা ক্যাটাগরি হতে হবে।");
-                };
-            });
-            container.querySelectorAll('input').forEach(input => {
-                input.oninput = (e) => {
-                    const parent = e.target.parentElement;
-                    const addBtn = parent.querySelector('.add-games-to-cat-btn');
-                    const editBtn = parent.querySelector('.edit-cat-games-btn');
-                    const catName = e.target.value.trim();
-                    if(catName) {
-                         addBtn.removeAttribute('disabled');
-                         editBtn.removeAttribute('disabled');
-                    } else {
-                        addBtn.setAttribute('disabled', 'true');
-                        editBtn.setAttribute('disabled', 'true');
-                    }
-                };
-            });
-            categoryModal.style.display = 'block';
+            document.getElementById('newsFormTitle').innerText = "নিউজ আপডেট করুন";
+            document.getElementById('btnPublishNews').innerText = "আপডেট করুন";
+            document.getElementById('btnPublishNews').classList.replace('btn-primary', 'btn-warning');
+            document.getElementById('btnCancelEditNews').classList.remove('d-none');
+            window.scrollTo(0, 0);
         };
 
-        async function openManageCategoryGamesModal(categoryName) {
-            document.getElementById('manageCategoryGamesModalTitle').innerText = `'${categoryName}' ক্যাটাগরির গেমসমূহ`;
-            const listContainer = document.getElementById('gamesInCategoryList');
-            listContainer.innerHTML = '<p>লোড হচ্ছে...</p>';
-            manageCategoryGamesModal.style.display = 'block';
+        // Cancel News Edit
+        document.getElementById('btnCancelEditNews').addEventListener('click', resetNewsForm);
 
-            const snapshot = await db.collection('games').where('category', '==', categoryName).get();
-            if (snapshot.empty) {
-                listContainer.innerHTML = '<p>এই ক্যাটাগরিতে কোনো গেম পাওয়া যায়নি।</p>';
-                return;
-            }
-
-            listContainer.innerHTML = '';
-            snapshot.forEach(doc => {
-                const game = doc.data();
-                const item = document.createElement('div');
-                item.className = 'game-item';
-                item.innerHTML = `
-                    <label>${game.name}</label>
-                    <button type="button" class="btn btn-danger" onclick="removeGameFromCategory('${doc.id}', '${categoryName}')" style="padding: 6px 12px; font-size: 14px;">Remove</button>
-                `;
-                listContainer.appendChild(item);
-            });
+        function resetNewsForm() {
+            editingNewsId = null;
+            document.getElementById('newsTitle').value = "";
+            document.getElementById('newsDate').value = "";
+            document.getElementById('newsImg').value = "";
+            document.getElementById('newsDesc').value = "";
+            
+            document.getElementById('newsFormTitle').innerText = "নতুন নিউজ পাবলিশ করুন";
+            document.getElementById('btnPublishNews').innerHTML = '<i class="fas fa-paper-plane me-2"></i>পাবলিশ করুন';
+            document.getElementById('btnPublishNews').classList.replace('btn-warning', 'btn-primary');
+            document.getElementById('btnCancelEditNews').classList.add('d-none');
         }
 
-        async function removeGameFromCategory(gameId, categoryName) {
-            if (!confirm("আপনি কি এই গেমটিকে ক্যাটাগরি থেকে বাদ দিতে চান?")) return;
-
+        // 4. Load User List & Filter
+        async function loadUserList() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            
             try {
-                await db.collection('games').doc(gameId).update({ category: '' });
-                alert("গেমটিকে ক্যাটাগরি থেকে সফলভাবে বাদ দেওয়া হয়েছে।");
-                openManageCategoryGamesModal(categoryName);
-                loadGames();
-            } catch (error) {
-                alert("গেমটি বাদ দেওয়ার সময় একটি ত্রুটি হয়েছে: " + error.message);
-                console.error(error);
+                const querySnapshot = await getDocs(collection(db, "users"));
+                if(querySnapshot.empty) {
+                    document.getElementById('noUsersMsg').classList.remove('d-none');
+                    return;
+                }
+                document.getElementById('noUsersMsg').classList.add('d-none');
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const row = `
+                        <tr>
+                            <td>${data.email || data.name || 'Unknown'}</td>
+                            <td>${data.mobile || data.phone || 'N/A'}</td>
+                            <td><span class="badge bg-secondary">${doc.id.substring(0,8)}...</span></td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-danger text-center">ডাটা লোড করা যায়নি (Firestore Rules চেক করুন)</td></tr>`;
             }
         }
-
-
-        async function openAddGamesToCategoryModal(categoryName) {
-            document.getElementById('addGamesToCategoryModalTitle').innerText = `'${categoryName}' ক্যাটাগরিতে গেম যোগ করুন`;
-            document.getElementById('targetCategoryName').value = categoryName;
-
-            const listContainer = document.getElementById('uncategorizedGamesList');
-            listContainer.innerHTML = '<p>লোড হচ্ছে...</p>';
+        
+        // Search Functionality for User List
+        document.getElementById('userSearchInput').addEventListener('keyup', function() {
+            const filter = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTableBody tr');
             
-            const gamesRef = db.collection('games');
-            const snapshot = await gamesRef.where('category', 'in', ['', null]).get();
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if(text.includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
 
-            if (snapshot.empty) {
-                listContainer.innerHTML = '<p>ক্যাটাগরিবিহীন কোনো গেম পাওয়া যায়নি।</p>';
-                 addGamesToCategoryModal.style.display = 'block';
-                return;
+        document.getElementById('btnRefreshUsers').addEventListener('click', loadUserList);
+        window.loadUserListRef = loadUserList; 
+
+        // 5. Update Password
+        document.getElementById('btnUpdatePass').addEventListener('click', () => {
+            const user = auth.currentUser;
+            const newPassword = document.getElementById('newFirebasePass').value;
+
+            if (user && newPassword) {
+                updatePassword(user, newPassword).then(() => {
+                    alert("পাসওয়ার্ড পরিবর্তন সফল হয়েছে!");
+                    document.getElementById('newFirebasePass').value = '';
+                }).catch((error) => {
+                    alert("এরর: " + error.message);
+                });
+            } else {
+                alert("নতুন পাসওয়ার্ড লিখুন।");
             }
-            
-            listContainer.innerHTML = '';
-            snapshot.forEach(doc => {
-                const game = doc.data();
-                const item = document.createElement('div');
-                item.className = 'game-item';
-                item.innerHTML = `
+        });
+
+        // 6. About Us - Team Members Logic (Add/Edit/Delete)
+        const teamList = document.getElementById('teamList');
+        
+        async function loadTeamMembers() {
+            teamList.innerHTML = '';
+            const snap = await getDocs(collection(db, "team_members"));
+            snap.forEach(doc => {
+                const d = doc.data();
+                const dataStr = encodeURIComponent(JSON.stringify(d));
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <img src="${d.image || 'https://via.placeholder.com/40'}" class="list-item-img me-3">
+                        <div>
+                            <strong>${d.name}</strong><br>
+                            <small class="text-muted">${d.role}</small>
+                        </div>
+                    </div>
                     <div>
-                        <input type="checkbox" id="${doc.id}" value="${doc.id}" style="transform: scale(1.2);">
-                        <label for="${doc.id}" style="margin-left: 8px;">${game.name}</label>
+                        <button class="btn btn-sm btn-outline-warning me-1" onclick="editTeam('${doc.id}', '${dataStr}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteDocById('team_members', '${doc.id}')"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
-                listContainer.appendChild(item);
+                teamList.appendChild(li);
             });
-            addGamesToCategoryModal.style.display = 'block';
         }
 
-        async function deleteCategory(categoryName) {
-            if (!confirm(`আপনি কি '${categoryName}' ক্যাটাগরিটি মুছে ফেলতে চান? এই ক্যাটাগরির অন্তর্ভুক্ত সকল গেম ক্যাটাগরিবিহীন হয়ে যাবে।`)) return;
+        document.getElementById('btnAddTeam').addEventListener('click', async () => {
+            const name = document.getElementById('teamName').value;
+            const role = document.getElementById('teamRole').value;
+            const img = document.getElementById('teamImg').value;
+            const bio = document.getElementById('teamBio').value;
+            
+            if(!name) return alert("নাম দিন");
 
             try {
-                const gamesSnapshot = await db.collection('games').where('category', '==', categoryName).get();
-                const batch = db.batch();
-                gamesSnapshot.forEach(doc => {
-                    batch.update(doc.ref, { category: '' });
-                });
-                await batch.commit();
-
-                const newCategories = availableCategories.filter(cat => cat !== categoryName);
-                await db.collection('settings').doc('categories').set({ names: newCategories });
-
-                alert(`'${categoryName}' ক্যাটাগরিটি সফলভাবে ডিলিট করা হয়েছে।`);
-                await loadCategories();
-                manageCategoriesBtn.click();
-                loadGames();
-            } catch (error) {
-                alert("ডিলিট করার সময় একটি ত্রুটি হয়েছে: " + error.message);
-                console.error(error);
-            }
-        }
-
-        document.querySelector('#categoryModal .close-btn').onclick = () => categoryModal.style.display = 'none';
-        document.querySelector('#addGamesToCategoryModal .close-btn').onclick = () => addGamesToCategoryModal.style.display = 'none';
-        document.querySelector('#manageCategoryGamesModal .close-btn').onclick = () => manageCategoryGamesModal.style.display = 'none';
-        window.addEventListener('click', (e) => { 
-            if (e.target === categoryModal) categoryModal.style.display = 'none';
-            if (e.target === addGamesToCategoryModal) addGamesToCategoryModal.style.display = 'none';
-            if (e.target === manageCategoryGamesModal) manageCategoryGamesModal.style.display = 'none';
-        });
-
-        categoryForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const names = [];
-            for(let i = 0; i < 9; i++) {
-                const name = document.getElementById(`categoryName${i}`).value.trim();
-                if(name) names.push(name);
-            }
-            await db.collection('settings').doc('categories').set({ names });
-            alert('ক্যাটাগরি সফলভাবে সেভ হয়েছে!');
-            categoryModal.style.display = 'none';
-            await loadCategories();
-            loadGames();
-        });
-
-        addGamesToCategoryForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const categoryName = document.getElementById('targetCategoryName').value;
-            const selectedGames = [];
-            document.querySelectorAll('#uncategorizedGamesList input:checked').forEach(checkbox => {
-                selectedGames.push(checkbox.value);
-            });
-
-            if(selectedGames.length === 0) {
-                alert("অনুগ্রহ করে অন্তত একটি গেম সিলেক্ট করুন।");
-                return;
-            }
-
-            try {
-                const batch = db.batch();
-                selectedGames.forEach(gameId => {
-                    const gameRef = db.collection('games').doc(gameId);
-                    batch.update(gameRef, { category: categoryName });
-                });
-                await batch.commit();
-                alert(`${selectedGames.length}টি গেম '${categoryName}' ক্যাটাগরিতে যোগ করা হয়েছে।`);
-                addGamesToCategoryModal.style.display = 'none';
-                loadGames();
-            } catch (error)
-            {
-                alert("গেম যোগ করার সময় একটি ত্রুটি হয়েছে: " + error.message);
-            }
-        });
-        
-        async function loadCategories() {
-            const doc = await db.collection('settings').doc('categories').get();
-            if (doc.exists) {
-                availableCategories = doc.data().names || [];
-            } else {
-                availableCategories = [];
-            }
-        }
-        
-        const eventModal = document.getElementById('eventModal');
-        const manageEventBtn = document.getElementById('manageEventBtn');
-        const eventForm = document.getElementById('eventForm');
-        const addNewEventGameBtn = document.getElementById('addNewEventGameBtn');
-        const addExistingEventGameBtn = document.getElementById('addExistingEventGameBtn');
-        const manageEventGamesBtn = document.getElementById('manageEventGamesBtn');
-
-        manageEventBtn.onclick = async () => {
-            const doc = await db.collection('settings').doc('event').get();
-            if (doc.exists) {
-                const data = doc.data();
-                document.getElementById('eventStatusToggle').checked = data.isActive || false;
-                document.getElementById('eventTitle').value = data.title || '';
-                if(data.endDate) {
-                    const date = data.endDate.toDate();
-                    const iso = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString();
-                    document.getElementById('eventEndDate').value = iso.slice(0, 16);
+                if(editingTeamId) {
+                    await updateDoc(doc(db, "team_members", editingTeamId), { name, role, image: img, bio });
+                    alert("আপডেট হয়েছে!");
+                    resetTeamForm();
                 } else {
-                    document.getElementById('eventEndDate').value = '';
+                    await addDoc(collection(db, "team_members"), { name, role, image: img, bio });
+                    alert("যুক্ত হয়েছে!");
+                    document.getElementById('teamName').value = '';
+                    document.getElementById('teamRole').value = '';
+                    document.getElementById('teamImg').value = '';
+                    document.getElementById('teamBio').value = '';
                 }
-            } else {
-                eventForm.reset();
-            }
-            eventModal.style.display = 'block';
+                loadTeamMembers();
+            } catch(e) { alert(e.message); }
+        });
+
+        window.editTeam = (id, dataStr) => {
+            const data = JSON.parse(decodeURIComponent(dataStr));
+            editingTeamId = id;
+            document.getElementById('teamName').value = data.name || '';
+            document.getElementById('teamRole').value = data.role || '';
+            document.getElementById('teamImg').value = data.image || '';
+            document.getElementById('teamBio').value = data.bio || '';
+
+            document.getElementById('teamFormTitle').innerText = "মেম্বার আপডেট করুন";
+            document.getElementById('btnAddTeam').innerText = "আপডেট";
+            document.getElementById('btnAddTeam').classList.replace('btn-success', 'btn-warning');
+            document.getElementById('btnCancelEditTeam').classList.remove('d-none');
         };
 
-        addNewEventGameBtn.onclick = async () => {
+        document.getElementById('btnCancelEditTeam').addEventListener('click', resetTeamForm);
+
+        function resetTeamForm() {
+            editingTeamId = null;
+            document.getElementById('teamName').value = '';
+            document.getElementById('teamRole').value = '';
+            document.getElementById('teamImg').value = '';
+            document.getElementById('teamBio').value = '';
+            document.getElementById('teamFormTitle').innerText = "টিম মেম্বার যুক্ত করুন";
+            document.getElementById('btnAddTeam').innerText = "যুক্ত করুন";
+            document.getElementById('btnAddTeam').classList.replace('btn-warning', 'btn-success');
+            document.getElementById('btnCancelEditTeam').classList.add('d-none');
+        }
+
+        // 7. About Us - Partners Logic (Add/Edit/Delete)
+        const partnerList = document.getElementById('partnerList');
+        
+        async function loadPartners() {
+            partnerList.innerHTML = '';
+            const snap = await getDocs(collection(db, "partners"));
+            snap.forEach(doc => {
+                const d = doc.data();
+                const dataStr = encodeURIComponent(JSON.stringify(d));
+                const div = document.createElement('div');
+                div.className = 'position-relative d-inline-block border p-1 rounded';
+                div.innerHTML = `
+                    <img src="${d.imageUrl}" style="height: 40px; cursor:pointer;" onclick="editPartner('${doc.id}', '${dataStr}')" title="এডিট করতে ক্লিক করুন">
+                    <button class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border-0" onclick="deleteDocById('partners', '${doc.id}')">x</button>
+                `;
+                partnerList.appendChild(div);
+            });
+        }
+
+        document.getElementById('btnAddPartner').addEventListener('click', async () => {
+            const url = document.getElementById('partnerLogoUrl').value;
+            if(!url) return alert("URL দিন");
+
             try {
-                const snapshot = await db.collection('games').where('category', '==', 'Event').get();
-                if (snapshot.size >= 2) {
-                    alert("আপনি সর্বোচ্চ দুটি ইভেন্ট গেম যোগ করতে পারবেন।");
+                if(editingPartnerId) {
+                    await updateDoc(doc(db, "partners", editingPartnerId), { imageUrl: url });
+                    alert("আপডেট হয়েছে!");
+                    resetPartnerForm();
+                } else {
+                    await addDoc(collection(db, "partners"), { imageUrl: url });
+                    alert("যুক্ত হয়েছে!");
+                    document.getElementById('partnerLogoUrl').value = '';
+                }
+                loadPartners();
+            } catch(e) { alert(e.message); }
+        });
+
+        window.editPartner = (id, dataStr) => {
+            const data = JSON.parse(decodeURIComponent(dataStr));
+            editingPartnerId = id;
+            document.getElementById('partnerLogoUrl').value = data.imageUrl || '';
+            
+            document.getElementById('partnerFormTitle').innerText = "লোগো আপডেট করুন";
+            document.getElementById('btnAddPartner').innerText = "আপডেট";
+            document.getElementById('btnAddPartner').classList.replace('btn-success', 'btn-warning');
+            document.getElementById('btnCancelEditPartner').classList.remove('d-none');
+        };
+
+        document.getElementById('btnCancelEditPartner').addEventListener('click', resetPartnerForm);
+
+        function resetPartnerForm() {
+            editingPartnerId = null;
+            document.getElementById('partnerLogoUrl').value = '';
+            document.getElementById('partnerFormTitle').innerText = "পার্টনার লোগো যুক্ত করুন";
+            document.getElementById('btnAddPartner').innerText = "যুক্ত করুন";
+            document.getElementById('btnAddPartner').classList.replace('btn-warning', 'btn-success');
+            document.getElementById('btnCancelEditPartner').classList.add('d-none');
+        }
+
+        // 8. Contact Info Logic
+        async function loadContactInfo() {
+            try {
+                const docSnap = await getDoc(doc(db, "settings", "contact"));
+                if (docSnap.exists()) {
+                    const d = docSnap.data();
+                    document.getElementById('contactPhone').value = d.phone || '';
+                    document.getElementById('contactEmail').value = d.email || '';
+                    document.getElementById('contactAddress').value = d.address || '';
+                }
+            } catch (e) { console.log(e); }
+        }
+
+        document.getElementById('btnSaveContact').addEventListener('click', async () => {
+            const phone = document.getElementById('contactPhone').value;
+            const email = document.getElementById('contactEmail').value;
+            const address = document.getElementById('contactAddress').value;
+            
+            await setDoc(doc(db, "settings", "contact"), { phone, email, address }, { merge: true });
+            alert("সেভ হয়েছে!");
+        });
+
+        // 9. --- CONTACT LIST DATABASE INTEGRATION (NEW) ---
+        
+        // Load Contacts from Firestore
+        window.loadContactListDB = async (category, division, district, upazila) => {
+            const listContainer = document.getElementById('finalContactList');
+            const loader = document.getElementById('clLoading');
+            
+            listContainer.innerHTML = '';
+            loader.classList.remove('d-none');
+
+            // Set current state
+            currentCLState = { category, division, district, upazila };
+
+            try {
+                // Query Firestore
+                const q = query(
+                    collection(db, "contacts"),
+                    where("category", "==", category),
+                    where("division", "==", division),
+                    where("district", "==", district),
+                    where("upazila", "==", upazila)
+                );
+
+                const querySnapshot = await getDocs(q);
+                
+                loader.classList.add('d-none');
+
+                if(querySnapshot.empty) {
+                    listContainer.innerHTML = '<div class="text-center text-muted py-4">এই লোকেশনে কোন ডাটা পাওয়া যায়নি।</div>';
                     return;
                 }
 
-                gameForm.reset();
-                document.querySelectorAll('.error-message').forEach(el => el.innerText = '');
-                document.getElementById('gameId').value = '';
-                document.getElementById('modalTitle').innerText = 'নতুন ইভেন্ট গেম যোগ করুন';
-                packagesContainer.innerHTML = '';
-                updatePreview('gameLogo', 'logoPreview');
-                addPackageField();
-                
-                const categoryGroup = document.getElementById('gameCategoryGroup');
-                const categorySelect = document.getElementById('gameCategory');
-                categorySelect.innerHTML = `<option value="Event" selected>Event</option>`;
-                categorySelect.disabled = true;
-                categoryGroup.style.display = 'block';
-                
-                eventModal.style.display = 'none';
-                gameModal.style.display = 'block';
+                querySnapshot.forEach((doc) => {
+                    const d = doc.data();
+                    const dataStr = encodeURIComponent(JSON.stringify(d));
+                    
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item d-flex justify-content-between align-items-center mb-2 shadow-sm border rounded';
+                    item.innerHTML = `
+                        <div>
+                            <h6 class="mb-1 fw-bold">${d.name}</h6>
+                            <div class="small text-muted"><i class="fas fa-phone-alt me-1"></i> ${d.phone}</div>
+                            ${d.details ? `<div class="small text-muted"><i class="fas fa-info-circle me-1"></i> ${d.details}</div>` : ''}
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-warning" onclick="editContactDB('${doc.id}', '${dataStr}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteContactDB('${doc.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    listContainer.appendChild(item);
+                });
 
-            } catch(error) {
-                alert("একটি ত্রুটি হয়েছে: " + error.message);
-                console.error(error);
+            } catch(e) {
+                loader.classList.add('d-none');
+                listContainer.innerHTML = `<div class="alert alert-danger">ডাটা লোড করতে সমস্যা: ${e.message}</div>`;
+                console.error(e);
             }
         };
 
-        addExistingEventGameBtn.onclick = () => {
-             openAddGamesToCategoryModal('Event');
-        };
+        // Add/Edit Contact Database Action
+        document.getElementById('btnSaveContactDB').addEventListener('click', async () => {
+            const name = document.getElementById('contactName').value;
+            const phone = document.getElementById('contactPhone').value;
+            const details = document.getElementById('contactDetails').value;
 
-        manageEventGamesBtn.onclick = () => {
-            openManageCategoryGamesModal('Event');
-        };
+            if(!name || !phone) return alert("নাম এবং ফোন নম্বর আবশ্যক");
 
-        document.querySelector('#eventModal .close-btn').onclick = () => eventModal.style.display = 'none';
-        window.addEventListener('click', (e) => { if (e.target === eventModal) eventModal.style.display = 'none'; });
-        
-        eventForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const eventEndDateValue = document.getElementById('eventEndDate').value;
-            const eventData = {
-                isActive: document.getElementById('eventStatusToggle').checked,
-                title: document.getElementById('eventTitle').value,
-                endDate: eventEndDateValue ? firebase.firestore.Timestamp.fromDate(new Date(eventEndDateValue)) : null
+            const dataPayload = {
+                name, phone, details,
+                category: currentCLState.category,
+                division: currentCLState.division,
+                district: currentCLState.district,
+                upazila: currentCLState.upazila,
+                updatedAt: new Date()
             };
-            await db.collection('settings').doc('event').set(eventData);
-            alert('ইভেন্ট সেটিংস সফলভাবে সেভ হয়েছে!');
-            eventModal.style.display = 'none';
+
+            try {
+                if(editingContactDBId) {
+                    // Update
+                    await updateDoc(doc(db, "contacts", editingContactDBId), dataPayload);
+                    alert("আপডেট সফল হয়েছে!");
+                } else {
+                    // Add
+                    dataPayload.createdAt = new Date();
+                    await addDoc(collection(db, "contacts"), dataPayload);
+                    alert("যুক্ত সফল হয়েছে!");
+                }
+                
+                contactModal.hide();
+                resetContactModal();
+                // Reload list
+                window.loadContactListDB(currentCLState.category, currentCLState.division, currentCLState.district, currentCLState.upazila);
+
+            } catch(e) {
+                alert("এরর: " + e.message);
+            }
         });
+
+        // Edit Helper
+        window.editContactDB = (id, dataStr) => {
+            const data = JSON.parse(decodeURIComponent(dataStr));
+            editingContactDBId = id;
+            document.getElementById('contactName').value = data.name || '';
+            document.getElementById('contactPhone').value = data.phone || '';
+            document.getElementById('contactDetails').value = data.details || '';
+            
+            document.getElementById('contactModalTitle').innerText = "কন্টাক্ট এডিট করুন";
+            document.getElementById('btnSaveContactDB').innerText = "আপডেট";
+            contactModal.show();
+        };
+
+        // Delete Helper
+        window.deleteContactDB = async (id) => {
+            if(confirm("আপনি কি নিশ্চিত এই কন্টাক্টটি মুছে ফেলতে চান?")) {
+                try {
+                    await deleteDoc(doc(db, "contacts", id));
+                    // Reload list
+                    window.loadContactListDB(currentCLState.category, currentCLState.division, currentCLState.district, currentCLState.upazila);
+                } catch(e) {
+                    alert("এরর: " + e.message);
+                }
+            }
+        };
+
+        // Modal Helpers
+        window.openContactModal = () => {
+            resetContactModal();
+            contactModal.show();
+        };
+
+        function resetContactModal() {
+            editingContactDBId = null;
+            document.getElementById('contactForm').reset();
+            document.getElementById('contactModalTitle').innerText = "নতুন কন্টাক্ট যুক্ত করুন";
+            document.getElementById('btnSaveContactDB').innerText = "সেভ করুন";
+        }
+
+
+        // Global Delete Function for other sections
+        window.deleteDocById = async (collectionName, docId) => {
+            if(confirm("মুছে ফেলতে চান?")) {
+                await deleteDoc(doc(db, collectionName, docId));
+                if(collectionName === 'team_members') loadTeamMembers();
+                if(collectionName === 'partners') loadPartners();
+                if(collectionName === 'news') loadNewsList();
+            }
+        };
+
+        // Expose load functions to global for 'showPage' to trigger
+        window.loadAboutData = () => { loadTeamMembers(); loadPartners(); };
+        window.loadContactData = loadContactInfo;
+        window.loadNewsData = loadNewsList;
+
+    </script>
+
+    <!-- UI Logic Script (No Firebase) -->
+    <script>
+        // --- Sidebar Logic (Desktop = Mobile) ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.toggle('active');
+            
+            if(sidebar.classList.contains('active')) {
+                overlay.classList.add('show');
+            } else {
+                overlay.classList.remove('show');
+            }
+        }
+
+        // --- Navigation Logic ---
+        function showPage(pageId, element) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.add('d-none'));
+            
+            const target = document.getElementById(pageId);
+            target.classList.remove('d-none');
+            target.classList.remove('fade-in');
+            void target.offsetWidth; // trigger reflow
+            target.classList.add('fade-in');
+
+            if(element) {
+                document.querySelectorAll('#sidebar a').forEach(a => a.classList.remove('active-link'));
+                element.classList.add('active-link');
+                toggleSidebar(); // Close sidebar after click
+            }
+
+            // Trigger data load for specific pages
+            if(pageId === 'userlist' && window.loadUserListRef) window.loadUserListRef();
+            if(pageId === 'about' && window.loadAboutData) window.loadAboutData();
+            if(pageId === 'contact' && window.loadContactData) window.loadContactData();
+            if(pageId === 'updates' && window.loadNewsData) window.loadNewsData();
+            if(pageId === 'contactlist') initContactList();
+        }
+
+        // --- Dark Mode Logic ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const btn = document.getElementById('themeBtn');
+            const icon = btn.querySelector('i');
+
+            if (html.getAttribute('data-bs-theme') === 'light') {
+                html.setAttribute('data-bs-theme', 'dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                btn.classList.replace('btn-outline-secondary', 'btn-outline-warning');
+            } else {
+                html.setAttribute('data-bs-theme', 'light');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                btn.classList.replace('btn-outline-warning', 'btn-outline-secondary');
+            }
+        }
+
+        // --- CONTACT LIST LOGIC (FULL BANGLADESH DATA) ---
+        
+        // Compact Full Geo Data for Bangladesh
+        const bdGeoData = {
+            "Dhaka": {
+                "Dhaka": ["Savar", "Dhamrai", "Keraniganj", "Nawabganj", "Dohar", "Hazaribagh", "Ramna", "Tejgaon", "Gulshan", "Mirpur", "Pallabi", "Kafrul", "Cantonment", "Uttara", "Mohammadpur", "Dhanmondi", "Badda", "Khilkhet", "Demra", "Jatrabari", "Lalbagh", "Kotwali", "Sutrapur"],
+                "Gazipur": ["Gazipur Sadar", "Kaliakair", "Kapasia", "Sreepur", "Kaliganj"],
+                "Narayanganj": ["Narayanganj Sadar", "Bandar", "Araihazar", "Rupganj", "Sonargaon"],
+                "Manikganj": ["Manikganj Sadar", "Singair", "Saturia", "Shivalaya", "Ghior", "Daulatpur", "Harirampur"],
+                "Munshiganj": ["Munshiganj Sadar", "Tongibari", "Sreenagar", "Lohajang", "Gajaria", "Sirajdikhan"],
+                "Narsingdi": ["Narsingdi Sadar", "Belabo", "Monohardi", "Palash", "Raipura", "Shibpur"],
+                "Tangail": ["Tangail Sadar", "Sakhipur", "Basail", "Madhupur", "Ghatail", "Kalihati", "Nagarpur", "Mirzapur", "Gopalpur", "Delduar", "Bhuapur", "Dhanbari"],
+                "Kishoreganj": ["Kishoreganj Sadar", "Hossainpur", "Pakundia", "Katiadi", "Karimganj", "Tarail", "Itna", "Mithamoin", "Austagram", "Nikli", "Bajitpur", "Kuliarchar", "Bhairab"],
+                "Faridpur": ["Faridpur Sadar", "Boalmari", "Alfadanga", "Madhukhali", "Bhanga", "Nagarkanda", "Charbhadrasan", "Sadarpur", "Saltha"],
+                "Gopalganj": ["Gopalganj Sadar", "Kashiani", "Tungipara", "Kotalipara", "Muksudpur"],
+                "Madaripur": ["Madaripur Sadar", "Kalkini", "Rajoir", "Shibchar"],
+                "Rajbari": ["Rajbari Sadar", "Goalanda", "Pangsa", "Baliakandi", "Kalukhali"],
+                "Shariatpur": ["Shariatpur Sadar", "Naria", "Zajira", "Gosairhat", "Bhedarganj", "Damudya"]
+            },
+            "Chittagong": {
+                "Chittagong": ["Chittagong Sadar", "Sitakunda", "Mirsharai", "Patiya", "Rangunia", "Anwara", "Boalkhali", "Raozan", "Hathazari", "Fatikchhari", "Sandwip", "Lohagara", "Satkania", "Banshkhali", "Chandanaish", "Karnaphuli"],
+                "Cox's Bazar": ["Cox's Bazar Sadar", "Chakaria", "Kutubdia", "Ukhiya", "Moheshkhali", "Pekua", "Ramu", "Teknaf"],
+                "Comilla": ["Comilla Sadar", "Barura", "Brahmanpara", "Burichong", "Chandina", "Chauddagram", "Daudkandi", "Debidwar", "Homna", "Laksam", "Muradnagar", "Nangalkot", "Meghna", "Titas", "Monohargonj", "Lalmai"],
+                "Brahmanbaria": ["Brahmanbaria Sadar", "Kasba", "Nasirnagar", "Sarail", "Ashuganj", "Akhaura", "Nabinagar", "Bancharampur", "Bijoynagar"],
+                "Chandpur": ["Chandpur Sadar", "Faridganj", "Haimchar", "Haziganj", "Kachua", "Matlab North", "Matlab South", "Shahrasti"],
+                "Noakhali": ["Noakhali Sadar", "Begumganj", "Chatkhil", "Companyganj", "Hatiya", "Senbagh", "Sonaimuri", "Subarnachar", "Kabirhat"],
+                "Feni": ["Feni Sadar", "Chhagalnaiya", "Daganbhuiyan", "Parshuram", "Fulgazi", "Sonagazi"],
+                "Lakshmipur": ["Lakshmipur Sadar", "Raipur", "Ramganj", "Ramgati", "Kamalnagar"],
+                "Khagrachhari": ["Khagrachhari Sadar", "Dighinala", "Panchhari", "Laxmichhari", "Mahalchhari", "Manikchhari", "Ramgarh", "Matiranga", "Guimara"],
+                "Rangamati": ["Rangamati Sadar", "Belaichhari", "Bagaichhari", "Barkal", "Juraichhari", "Rajasthali", "Kaptai", "Langadu", "Naniarchar", "Kaukhali"],
+                "Bandarban": ["Bandarban Sadar", "Ali Kadam", "Naikhongchhari", "Rowangchhari", "Lama", "Ruma", "Thanchi"]
+            },
+            "Sylhet": {
+                "Sylhet": ["Sylhet Sadar", "Beanibazar", "Bishwanath", "Dakshin Surma", "Balaganj", "Companiganj", "Fenchuganj", "Golapganj", "Gowainghat", "Jaintiapur", "Kanaighat", "Zakiganj", "Osmani Nagar"],
+                "Moulvibazar": ["Moulvibazar Sadar", "Barlekha", "Juri", "Kamalganj", "Kulaura", "Rajnagar", "Sreemangal"],
+                "Habiganj": ["Habiganj Sadar", "Azmiriganj", "Bahubal", "Baniyachong", "Chunarughat", "Lakhai", "Madhabpur", "Nabiganj", "Shayestaganj"],
+                "Sunamganj": ["Sunamganj Sadar", "Bishwamvarpur", "Chhatak", "Derai", "Dharamapasha", "Dowarabazar", "Jagannathpur", "Jamalganj", "Tahirpur", "Sullah", "Shantiganj"]
+            },
+            "Rajshahi": {
+                "Rajshahi": ["Rajshahi Sadar", "Bagha", "Bagmara", "Charghat", "Durgapur", "Godagari", "Mohanpur", "Paba", "Puthia", "Tanore"],
+                "Bogra": ["Bogra Sadar", "Adamdighi", "Dhupchanchia", "Gabtali", "Kahaloo", "Nandigram", "Sariakandi", "Sahajanpur", "Sherpur", "Shibganj", "Sonatala"],
+                "Naogaon": ["Naogaon Sadar", "Atrai", "Badalgachhi", "Dhamoirhat", "Manda", "Mohadevpur", "Niamatpur", "Patnitala", "Porsha", "Raninagar", "Sapahar"],
+                "Natore": ["Natore Sadar", "Bagatipara", "Baraigram", "Gurudaspur", "Lalpur", "Singra", "Naldanga"],
+                "Chapainawabganj": ["Chapainawabganj Sadar", "Gomastapur", "Nachole", "Bholahat", "Shibganj"],
+                "Pabna": ["Pabna Sadar", "Atgharia", "Bera", "Bhangura", "Chatmohar", "Faridpur", "Ishwardi", "Santhia", "Sujanagar"],
+                "Sirajganj": ["Sirajganj Sadar", "Belkuchi", "Chauhali", "Kamarkhanda", "Kazipur", "Raiganj", "Shahjadpur", "Tarash", "Ullahpara"],
+                "Joypurhat": ["Joypurhat Sadar", "Akkelpur", "Kalai", "Khetlal", "Panchbibi"]
+            },
+            "Khulna": {
+                "Khulna": ["Khulna Sadar", "Batiaghata", "Dacope", "Dumuria", "Dighalia", "Koyra", "Paikgachha", "Phultala", "Rupsha", "Terokhada"],
+                "Bagerhat": ["Bagerhat Sadar", "Chitalmari", "Fakirhat", "Kachua", "Mollahat", "Mongla", "Morrelganj", "Rampal", "Sarankhola"],
+                "Chuadanga": ["Chuadanga Sadar", "Alamdanga", "Damurhuda", "Jibannagar"],
+                "Jessore": ["Jessore Sadar", "Abhaynagar", "Bagherpara", "Chaugachha", "Jhikargachha", "Keshabpur", "Manirampur", "Sharsha"],
+                "Jhenaidah": ["Jhenaidah Sadar", "Harinakunda", "Kaliganj", "Kotchandpur", "Maheshpur", "Shailkupa"],
+                "Kushtia": ["Kushtia Sadar", "Bheramara", "Daulatpur", "Khoksa", "Kumarkhali", "Mirpur"],
+                "Magura": ["Magura Sadar", "Mohammadpur", "Shalikha", "Sreepur"],
+                "Meherpur": ["Meherpur Sadar", "Gangni", "Mujibnagar"],
+                "Narail": ["Narail Sadar", "Kalia", "Lohagara"],
+                "Satkhira": ["Satkhira Sadar", "Assasuni", "Debhata", "Kalaroa", "Kaliganj", "Shyamnagar", "Tala"]
+            },
+            "Barisal": {
+                "Barisal": ["Barisal Sadar", "Agailjhara", "Babuganj", "Bakerganj", "Banaripara", "Gaurnadi", "Hizla", "Mehendiganj", "Muladi", "Wazirpur"],
+                "Barguna": ["Barguna Sadar", "Amtali", "Bamna", "Betagi", "Patharghata", "Taltali"],
+                "Bhola": ["Bhola Sadar", "Burhanuddin", "Char Fasson", "Daulatkhan", "Lalmohan", "Manpura", "Tazumuddin"],
+                "Jhalokati": ["Jhalokati Sadar", "Kathalia", "Nalchity", "Rajapur"],
+                "Patuakhali": ["Patuakhali Sadar", "Bauphal", "Dashmina", "Galachipa", "Kalapara", "Mirzaganj", "Rangabali", "Dumki"],
+                "Pirojpur": ["Pirojpur Sadar", "Bhandaria", "Kawkhali", "Mathbaria", "Nazirpur", "Nesarabad", "Indurkani"]
+            },
+            "Rangpur": {
+                "Rangpur": ["Rangpur Sadar", "Badarganj", "Gangachhara", "Kaunia", "Mithapukur", "Pirgachha", "Pirganj", "Taraganj"],
+                "Dinajpur": ["Dinajpur Sadar", "Birampur", "Birganj", "Bochaganj", "Chirirbandar", "Fulbari", "Ghoraghat", "Hakimpur", "Kaharole", "Khansama", "Nawabganj", "Parbatipur", "Birol"],
+                "Gaibandha": ["Gaibandha Sadar", "Fulchhari", "Gobindaganj", "Palashbari", "Sadullapur", "Saghata", "Sundarganj"],
+                "Kurigram": ["Kurigram Sadar", "Bhurungamari", "Char Rajibpur", "Chilmari", "Phulbari", "Nageshwari", "Rajarhat", "Raomari", "Ulipur"],
+                "Lalmonirhat": ["Lalmonirhat Sadar", "Aditmari", "Hatibandha", "Kaliganj", "Patgram"],
+                "Nilphamari": ["Nilphamari Sadar", "Dimla", "Domar", "Jaldhaka", "Kishoreganj", "Saidpur"],
+                "Panchagarh": ["Panchagarh Sadar", "Atwari", "Boda", "Debiganj", "Tetulia"],
+                "Thakurgaon": ["Thakurgaon Sadar", "Baliadangi", "Haripur", "Pirganj", "Ranishankail"]
+            },
+            "Mymensingh": {
+                "Mymensingh": ["Mymensingh Sadar", "Bhaluka", "Dhobaura", "Fulbaria", "Gafargaon", "Gauripur", "Haluaghat", "Ishwarganj", "Muktagachha", "Nandail", "Phulpur", "Trishal", "Tara Khanda"],
+                "Jamalpur": ["Jamalpur Sadar", "Baksiganj", "Dewanganj", "Islampur", "Madarganj", "Melandaha", "Sarishabari"],
+                "Netrokona": ["Netrokona Sadar", "Atpara", "Barhatta", "Durgapur", "Khaliajuri", "Kalmakanda", "Kendua", "Madan", "Mohanganj", "Purbadhala"],
+                "Sherpur": ["Sherpur Sadar", "Jhenaigati", "Nakla", "Nalitabari", "Sreebardi"]
+            }
+        };
+
+        const clCategories = [
+            { id: 'police', name: 'পুলিশ স্টেশন', icon: 'fa-user-shield' },
+            { id: 'hospital', name: 'হাসপাতাল', icon: 'fa-hospital' },
+            { id: 'ambulance', name: 'এম্বুলেন্স', icon: 'fa-ambulance' },
+            { id: 'electricity', name: 'বিদ্যুৎ জোনাল অফিস', icon: 'fa-bolt' },
+            { id: 'fire', name: 'ফায়ার সার্ভিস', icon: 'fa-fire-extinguisher' },
+            { id: 'gas', name: 'গ্যাস ফিলিং স্টেশন', icon: 'fa-burn' },
+            { id: 'wasa', name: 'ওয়াসা', icon: 'fa-tint' },
+            { id: 'petrol', name: 'পেট্রোল পাম্প', icon: 'fa-gas-pump' },
+            { id: 'govt', name: 'সরকারী কার্যালয়', icon: 'fa-landmark' }
+        ];
+
+        let clState = { step: 0, category: '', division: '', district: '', upazila: '' };
+
+        function initContactList() {
+            renderCategories();
+            goToClStep(0);
+        }
+
+        function goToClStep(stepIndex) {
+            clState.step = stepIndex;
+            const slider = document.getElementById('clSlider');
+            slider.style.transform = `translateX(-${stepIndex * 20}%)`;
+            
+            // Update Header Title Only (Badge removed)
+            const titles = [
+                "ক্যাটাগরি নির্বাচন করুন", 
+                "বিভাগ নির্বাচন করুন", 
+                "জেলা নির্বাচন করুন", 
+                "উপজেলা নির্বাচন করুন", 
+                "রেজাল্ট / কন্টাক্ট লিস্ট"
+            ];
+            document.getElementById('clTitle').innerText = titles[stepIndex];
+            
+            // Show/Hide Back Button
+            if(stepIndex > 0) {
+                document.getElementById('clBackBtn').classList.remove('d-none');
+            } else {
+                document.getElementById('clBackBtn').classList.add('d-none');
+            }
+        }
+
+        function prevContactStep() {
+            if(clState.step > 0) goToClStep(clState.step - 1);
+        }
+
+        // Step 1: Render Categories
+        function renderCategories() {
+            const container = document.getElementById('clCategoryList');
+            container.innerHTML = '';
+            clCategories.forEach(cat => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item cl-item d-flex align-items-center py-3';
+                item.innerHTML = `<i class="fas ${cat.icon} me-3 text-primary" style="width:20px"></i> ${cat.name}`;
+                item.onclick = () => {
+                    clState.category = cat.name;
+                    renderDivisions();
+                    goToClStep(1);
+                };
+                container.appendChild(item);
+            });
+        }
+
+        // Step 2: Render Divisions
+        function renderDivisions() {
+            const container = document.getElementById('clDivisionList');
+            container.innerHTML = '';
+            const divisions = Object.keys(bdGeoData);
+            
+            divisions.forEach(div => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item cl-item py-3';
+                item.innerText = div + ' বিভাগ';
+                item.onclick = () => {
+                    clState.division = div;
+                    renderDistricts(div);
+                    goToClStep(2);
+                };
+                container.appendChild(item);
+            });
+        }
+
+        // Step 3: Render Districts
+        function renderDistricts(divName) {
+            const container = document.getElementById('clDistrictList');
+            container.innerHTML = '';
+            const districts = bdGeoData[divName] ? Object.keys(bdGeoData[divName]) : [];
+            
+            if(districts.length === 0) {
+                container.innerHTML = '<div class="text-muted p-3">এই বিভাগে কোন ডাটা নেই</div>';
+                return;
+            }
+
+            districts.forEach(dist => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item cl-item py-3';
+                item.innerText = dist + ' জেলা';
+                item.onclick = () => {
+                    clState.district = dist;
+                    renderUpazilas(divName, dist);
+                    goToClStep(3);
+                };
+                container.appendChild(item);
+            });
+        }
+
+        // Step 4: Render Upazilas
+        function renderUpazilas(divName, distName) {
+            const container = document.getElementById('clUpazilaList');
+            container.innerHTML = '';
+            const upazilas = bdGeoData[divName][distName] || [];
+
+            upazilas.forEach(upz => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item cl-item py-3';
+                item.innerText = upz;
+                item.onclick = () => {
+                    clState.upazila = upz;
+                    showResultPage();
+                    goToClStep(4);
+                };
+                container.appendChild(item);
+            });
+        }
+
+        // Step 5: Result Page
+        function showResultPage() {
+            const breadcrumb = `${clState.category} > ${clState.division} > ${clState.district} > ${clState.upazila}`;
+            document.getElementById('clSelectedBreadcrumb').innerText = breadcrumb;
+            
+            // Trigger Firebase Load via window object
+            if(window.loadContactListDB) {
+                window.loadContactListDB(clState.category, clState.division, clState.district, clState.upazila);
+            }
+        }
 
     </script>
 </body>
-</html>
+ </html>
